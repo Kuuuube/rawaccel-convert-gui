@@ -1,3 +1,4 @@
+use egui_plot::PlotItem;
 use rawaccel_convert::types::{AccelArgs, AccelMode, CapMode};
 
 #[derive(serde::Deserialize, serde::Serialize)]
@@ -321,16 +322,21 @@ impl eframe::App for RawaccelConvertGui {
 
         egui::CentralPanel::default().show(ctx, |ui| {
             let plot_accel_args = self.accel_args.clone();
+            let plot_max_range = (plot_accel_args.dpi.clone() / 20) as f64;
             let mut plot = egui_plot::Plot::new("lines_demo")
                 .legend(egui_plot::Legend::default())
                 .show_axes(true)
-                .show_grid(true);
+                .show_grid(true)
+                .data_aspect(200.0);
             plot = plot.coordinates_formatter(egui_plot::Corner::LeftBottom, egui_plot::CoordinatesFormatter::default());
             plot.show(ui, |plot_ui| {
                 plot_ui.line(
                     egui_plot::Line::new(egui_plot::PlotPoints::from_explicit_callback(
                         move |x| {
-                            match plot_accel_args.mode {
+                            if x < 0.0 {
+                                return 0.0;
+                            }
+                            match &plot_accel_args.mode {
                                 AccelMode::Linear => rawaccel_convert::accel_curves::classic::classic(x, &plot_accel_args),
                                 AccelMode::Classic => rawaccel_convert::accel_curves::classic::classic(x, &plot_accel_args),
                                 AccelMode::Jump => rawaccel_convert::accel_curves::jump::jump(x, &plot_accel_args),
@@ -340,7 +346,7 @@ impl eframe::App for RawaccelConvertGui {
                                 AccelMode::Noaccel => rawaccel_convert::accel_curves::noaccel::noaccel(x, &plot_accel_args),
                             }
                         },
-                        ..,
+                        0.0..plot_max_range,
                         512,
                     ))
                     .color(egui::Color32::from_rgb(100, 100, 200))
