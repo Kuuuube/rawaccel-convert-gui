@@ -186,6 +186,8 @@ impl eframe::App for RawaccelConvertGui {
                             add_input_offset(self, ui);
                             ui.end_row();
 
+                            self.accel_args.exponent_classic = 2.0;
+                        }
                         AccelMode::Classic => {
                             add_gain(self, ui);
                             ui.end_row();
