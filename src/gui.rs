@@ -19,6 +19,14 @@ pub struct RawaccelConvertSettings {
 
     pub decay_string: String,
     pub limit_string: String,
+
+    pub gamma_string: String,
+    pub motivity_string: String,
+    pub syncspeed_string: String,
+
+    pub scale_string: String,
+    pub exponent_power_string: String,
+    pub output_offset_string: String,
 }
 
 impl Default for RawaccelConvertSettings {
@@ -45,6 +53,16 @@ impl Default for RawaccelConvertSettings {
             //natural
             decay_string: "0.1".to_string(),
             limit_string: "1.5".to_string(),
+
+            //synchronous
+            gamma_string: "1".to_string(),
+            motivity_string: "1.5".to_string(),
+            syncspeed_string: "5".to_string(),
+
+            //power
+            scale_string: "1".to_string(),
+            exponent_power_string: "0.05".to_string(),
+            output_offset_string: "0".to_string(),
         }
     }
 }
@@ -241,11 +259,60 @@ impl eframe::App for RawaccelConvertGui {
                             add_gain(self, ui);
                             ui.end_row();
 
+                            add_gamma(self, ui);
+                            ui.end_row();
+
+                            add_smooth(self, ui);
+                            ui.end_row();
+
+                            add_motivity(self, ui);
+                            ui.end_row();
+
+                            add_syncspeed(self, ui);
+                            ui.end_row();
                         },
                         AccelMode::Power => {
                             add_gain(self, ui);
                             ui.end_row();
 
+                            match self.accel_args.cap_mode {
+                                rawaccel_convert::types::CapMode::InputOutput => {
+                                    add_cap_type(self, ui);
+                                    ui.end_row();
+
+                                    add_cap_input(self, ui);
+                                    ui.end_row();
+
+                                    add_cap_output(self, ui);
+                                    ui.end_row();
+                                },
+                                rawaccel_convert::types::CapMode::Input => {
+                                    add_scale(self, ui);
+                                    ui.end_row();
+        
+                                    add_cap_type(self, ui);
+                                    ui.end_row();
+        
+                                    add_cap_input(self, ui);
+                                    ui.end_row();
+                                },
+                                rawaccel_convert::types::CapMode::Output => {
+                                    add_scale(self, ui);
+                                    ui.end_row();
+        
+                                    add_cap_type(self, ui);
+                                    ui.end_row();
+        
+                                    add_cap_output(self, ui);
+                                    ui.end_row();
+                                },
+                            }
+
+                            add_exponent(self, ui);
+                            ui.end_row();
+
+                            add_output_offset(self, ui);
+                            ui.end_row();
                         },
                         AccelMode::Noaccel => {},
                     }
@@ -509,6 +576,114 @@ fn add_limit(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::Ui) {
         ui.available_size(),
         egui::TextEdit::singleline(
             &mut rawaccel_convert_gui.settings.limit_string,
+        ),
+    );
+}
+
+fn add_gamma(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::Ui) {
+    let mut color = ui.visuals().text_color();
+    match rawaccel_convert_gui.settings.gamma_string.parse::<f64>() {
+        Ok(ok) => rawaccel_convert_gui.accel_args.gamma = ok,
+        Err(_) => {color = ui.visuals().error_fg_color;},
+    }
+    ui.add_sized(
+        ui.available_size(),
+        egui::Label::new(egui::RichText::new("Gamma").color(color)).selectable(false),
+    );
+    ui.add_sized(
+        ui.available_size(),
+        egui::TextEdit::singleline(
+            &mut rawaccel_convert_gui.settings.gamma_string,
+        ),
+    );
+}
+
+fn add_motivity(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::Ui) {
+    let mut color = ui.visuals().text_color();
+    match rawaccel_convert_gui.settings.motivity_string.parse::<f64>() {
+        Ok(ok) => rawaccel_convert_gui.accel_args.motivity = ok,
+        Err(_) => {color = ui.visuals().error_fg_color;},
+    }
+    ui.add_sized(
+        ui.available_size(),
+        egui::Label::new(egui::RichText::new("Motivity").color(color)).selectable(false),
+    );
+    ui.add_sized(
+        ui.available_size(),
+        egui::TextEdit::singleline(
+            &mut rawaccel_convert_gui.settings.motivity_string,
+        ),
+    );
+}
+
+fn add_syncspeed(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::Ui) {
+    let mut color = ui.visuals().text_color();
+    match rawaccel_convert_gui.settings.syncspeed_string.parse::<f64>() {
+        Ok(ok) => rawaccel_convert_gui.accel_args.sync_speed = ok,
+        Err(_) => {color = ui.visuals().error_fg_color;},
+    }
+    ui.add_sized(
+        ui.available_size(),
+        egui::Label::new(egui::RichText::new("SyncSpeed").color(color)).selectable(false),
+    );
+    ui.add_sized(
+        ui.available_size(),
+        egui::TextEdit::singleline(
+            &mut rawaccel_convert_gui.settings.syncspeed_string,
+        ),
+    );
+}
+
+fn add_scale(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::Ui) {
+    let mut color = ui.visuals().text_color();
+    match rawaccel_convert_gui.settings.scale_string.parse::<f64>() {
+        Ok(ok) => rawaccel_convert_gui.accel_args.scale = ok,
+        Err(_) => {color = ui.visuals().error_fg_color;},
+    }
+    ui.add_sized(
+        ui.available_size(),
+        egui::Label::new(egui::RichText::new("Scale").color(color)).selectable(false),
+    );
+    ui.add_sized(
+        ui.available_size(),
+        egui::TextEdit::singleline(
+            &mut rawaccel_convert_gui.settings.scale_string,
+        ),
+    );
+}
+
+fn add_exponent(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::Ui) {
+    let mut color = ui.visuals().text_color();
+    match rawaccel_convert_gui.settings.exponent_power_string.parse::<f64>() {
+        Ok(ok) => rawaccel_convert_gui.accel_args.exponent_power = ok,
+        Err(_) => {color = ui.visuals().error_fg_color;},
+    }
+    ui.add_sized(
+        ui.available_size(),
+        egui::Label::new(egui::RichText::new("Exponent").color(color)).selectable(false),
+    );
+    ui.add_sized(
+        ui.available_size(),
+        egui::TextEdit::singleline(
+            &mut rawaccel_convert_gui.settings.exponent_power_string,
+        ),
+    );
+}
+
+fn add_output_offset(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::Ui) {
+    let mut color = ui.visuals().text_color();
+    match rawaccel_convert_gui.settings.output_offset_string.parse::<f64>() {
+        Ok(ok) => rawaccel_convert_gui.accel_args.output_offset = ok,
+        Err(_) => {color = ui.visuals().error_fg_color;},
+    }
+    ui.add_sized(
+        ui.available_size(),
+        egui::Label::new(egui::RichText::new("Output Offset").color(color)).selectable(false),
+    );
+    ui.add_sized(
+        ui.available_size(),
+        egui::TextEdit::singleline(
+            &mut rawaccel_convert_gui.settings.output_offset_string,
         ),
     );
 }
