@@ -332,8 +332,7 @@ impl eframe::App for RawaccelConvertGui {
             let mut plot = egui_plot::Plot::new("lines_demo")
                 .legend(egui_plot::Legend::default())
                 .show_axes(true)
-                .show_grid(true)
-                .data_aspect(200.0);
+                .show_grid(true);
             plot = plot.coordinates_formatter(
                 egui_plot::Corner::LeftBottom,
                 egui_plot::CoordinatesFormatter::default(),
