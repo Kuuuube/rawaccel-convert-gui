@@ -1046,6 +1046,11 @@ fn add_points_dump(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui:
         {
             rawaccel_convert_gui.export_accel_args_cache = rawaccel_convert_gui.accel_args.clone();
 
+            rawaccel_convert_gui.accel_args.optimize_curve = match rawaccel_convert_gui.export_point_scaling {
+                PointScaling::Sens | PointScaling::Velocity | PointScaling::Gain => true,
+                PointScaling::Libinput | PointScaling::LibinputDebug => false,
+            };
+
             //graph curve
             rawaccel_convert_gui.curvegen =
                 rawaccel_convert::generate_curve::generate_curve(&rawaccel_convert_gui.accel_args);
