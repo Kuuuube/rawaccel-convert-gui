@@ -377,7 +377,7 @@ impl eframe::App for RawaccelConvertGui {
 }
 
 fn get_point(x: f64, args: &AccelArgs) -> f64 {
-    args.sens_multiplier
+    let y = args.sens_multiplier
         * match &args.mode {
             AccelMode::Linear => rawaccel_convert::accel_curves::classic::classic(x, &args),
             AccelMode::Classic => rawaccel_convert::accel_curves::classic::classic(x, &args),
@@ -388,7 +388,19 @@ fn get_point(x: f64, args: &AccelArgs) -> f64 {
             }
             AccelMode::Power => rawaccel_convert::accel_curves::power::power(x, &args),
             AccelMode::Noaccel => rawaccel_convert::accel_curves::noaccel::noaccel(x, &args),
+        };
+    match args.point_scaling {
+        PointScaling::Sens => return y,
+        PointScaling::Velocity | PointScaling::Libinput | PointScaling::LibinputDebug => {
+            let converted_point = rawaccel_convert::convert_curve::sensitivity_point_to_velocity(
+                rawaccel_convert::types::Point { x, y },
+            );
+            return converted_point.y;
         }
+        PointScaling::Gain => {
+            unimplemented!()
+        }
+    }
 }
 
 fn get_bounds(args: &AccelArgs) -> ([f64; 2], [f64; 2]) {
