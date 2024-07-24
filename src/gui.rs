@@ -191,10 +191,26 @@ impl eframe::App for RawaccelConvertGui {
                             add_power_classic(self, ui);
                             ui.end_row();
                         },
-                        AccelMode::Jump => {},
-                        AccelMode::Natural => {},
-                        AccelMode::Synchronous => {},
-                        AccelMode::Power => {},
+                        AccelMode::Jump => {
+                            add_gain(self, ui);
+                            ui.end_row();
+
+                        },
+                        AccelMode::Natural => {
+                            add_gain(self, ui);
+                            ui.end_row();
+
+                        },
+                        AccelMode::Synchronous => {
+                            add_gain(self, ui);
+                            ui.end_row();
+
+                        },
+                        AccelMode::Power => {
+                            add_gain(self, ui);
+                            ui.end_row();
+
+                        },
                         AccelMode::Noaccel => {},
                     }
                 });
