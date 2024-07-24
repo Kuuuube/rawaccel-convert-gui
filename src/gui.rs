@@ -407,18 +407,15 @@ fn get_point(x: f64, args: &AccelArgs) -> f64 {
 }
 
 fn get_bounds(args: &AccelArgs) -> ([f64; 2], [f64; 2]) {
-    match args.mode {
-        AccelMode::Power => {
-            let plot_min_x = 0.1;
-            let plot_max_x = (args.dpi.clone() / 20) as f64;
-            return ([plot_min_x, get_point(plot_min_x, args) * 0.9], [plot_max_x, get_point(plot_max_x, args) * 1.1]);
-        },
-        _ => {
-            let plot_min_x = 0.0;
-            let plot_max_x = (args.dpi.clone() / 20) as f64;
-            return ([plot_min_x, get_point(plot_min_x, args) * 0.9], [plot_max_x, get_point(plot_max_x, args) * 1.1]);
-        }
-    }
+    let plot_min_x = match args.mode {
+        AccelMode::Power => 0.1,
+        _ => 0.0,
+    };
+    let plot_max_x = (args.dpi.clone() / 20) as f64;
+    return (
+        [plot_min_x, get_point(plot_min_x, args) * 0.9],
+        [plot_max_x, get_point(plot_max_x, args) * 1.1],
+    );
 }
 
 fn add_dpi(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::Ui) {
