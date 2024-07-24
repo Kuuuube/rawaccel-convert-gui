@@ -338,55 +338,15 @@ impl eframe::App for RawaccelConvertGui {
                 egui_plot::CoordinatesFormatter::default(),
             );
             plot.show(ui, |plot_ui| {
+                let bounds = get_bounds(&plot_accel_args);
+                plot_ui.set_plot_bounds(egui_plot::PlotBounds::from_min_max(bounds.0, bounds.1));
                 plot_ui.line(
                     egui_plot::Line::new(egui_plot::PlotPoints::from_explicit_callback(
                         move |x| {
                             if x < 0.0 {
                                 return 0.0;
                             }
-                            plot_accel_args.sens_multiplier
-                                * match &plot_accel_args.mode {
-                                    AccelMode::Linear => {
-                                        rawaccel_convert::accel_curves::classic::classic(
-                                            x,
-                                            &plot_accel_args,
-                                        )
-                                    }
-                                    AccelMode::Classic => {
-                                        rawaccel_convert::accel_curves::classic::classic(
-                                            x,
-                                            &plot_accel_args,
-                                        )
-                                    }
-                                    AccelMode::Jump => rawaccel_convert::accel_curves::jump::jump(
-                                        x,
-                                        &plot_accel_args,
-                                    ),
-                                    AccelMode::Natural => {
-                                        rawaccel_convert::accel_curves::natural::natural(
-                                            x,
-                                            &plot_accel_args,
-                                        )
-                                    }
-                                    AccelMode::Synchronous => {
-                                        rawaccel_convert::accel_curves::synchronous::synchronous(
-                                            x,
-                                            &plot_accel_args,
-                                        )
-                                    }
-                                    AccelMode::Power => {
-                                        rawaccel_convert::accel_curves::power::power(
-                                            x,
-                                            &plot_accel_args,
-                                        )
-                                    }
-                                    AccelMode::Noaccel => {
-                                        rawaccel_convert::accel_curves::noaccel::noaccel(
-                                            x,
-                                            &plot_accel_args,
-                                        )
-                                    }
-                                }
+                            get_point(x, &plot_accel_args)
                         },
                         0.0..plot_max_range,
                         512,
@@ -397,6 +357,67 @@ impl eframe::App for RawaccelConvertGui {
             })
             .response
         });
+    }
+}
+
+fn get_point(x: f64, args: &AccelArgs) -> f64 {
+    args.sens_multiplier
+    * match &args.mode {
+        AccelMode::Linear => {
+            rawaccel_convert::accel_curves::classic::classic(
+                x,
+                &args,
+            )
+        }
+        AccelMode::Classic => {
+            rawaccel_convert::accel_curves::classic::classic(
+                x,
+                &args,
+            )
+        }
+        AccelMode::Jump => rawaccel_convert::accel_curves::jump::jump(
+            x,
+            &args,
+        ),
+        AccelMode::Natural => {
+            rawaccel_convert::accel_curves::natural::natural(
+                x,
+                &args,
+            )
+        }
+        AccelMode::Synchronous => {
+            rawaccel_convert::accel_curves::synchronous::synchronous(
+                x,
+                &args,
+            )
+        }
+        AccelMode::Power => {
+            rawaccel_convert::accel_curves::power::power(
+                x,
+                &args,
+            )
+        }
+        AccelMode::Noaccel => {
+            rawaccel_convert::accel_curves::noaccel::noaccel(
+                x,
+                &args,
+            )
+        }
+    }
+}
+
+fn get_bounds(args: &AccelArgs) -> ([f64; 2], [f64; 2]) {
+    match args.mode {
+        AccelMode::Power => {
+            let plot_min_x = 0.1;
+            let plot_max_x = (args.dpi.clone() / 20) as f64;
+            return ([plot_min_x, get_point(plot_min_x, args) * 0.9], [plot_max_x, get_point(plot_max_x, args) * 1.1]);
+        },
+        _ => {
+            let plot_min_x = 0.0;
+            let plot_max_x = (args.dpi.clone() / 20) as f64;
+            return ([plot_min_x, get_point(plot_min_x, args) * 0.9], [plot_max_x, get_point(plot_max_x, args) * 1.1]);
+        }
     }
 }
 
