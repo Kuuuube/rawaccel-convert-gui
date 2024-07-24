@@ -1,4 +1,4 @@
-use rawaccel_convert::types::{AccelArgs, AccelMode};
+use rawaccel_convert::types::{AccelArgs, AccelMode, CapMode};
 
 #[derive(serde::Deserialize, serde::Serialize)]
 pub struct RawaccelConvertSettings {
@@ -6,6 +6,10 @@ pub struct RawaccelConvertSettings {
 
     pub sens_multiplier_string: String,
     pub curve_type_string: String,
+    pub acceleration_string: String,
+    pub cap_output_string: String,
+    pub cap_input_string: String,
+    pub input_offset_string: String,
 }
 
 impl Default for RawaccelConvertSettings {
@@ -15,6 +19,10 @@ impl Default for RawaccelConvertSettings {
 
             sens_multiplier_string: "1.0".to_string(),
             curve_type_string: "Linear".to_string(),
+            acceleration_string: "0.005".to_string(),
+            cap_output_string: "1.5".to_string(),
+            cap_input_string: "15".to_string(),
+            input_offset_string: "0".to_string(),
         }
     }
 }
@@ -91,43 +99,60 @@ impl eframe::App for RawaccelConvertGui {
             .resizable(false)
             .show(ctx, |ui| {
                 egui::Grid::new("hentaigana_selection_grid").show(ui, |ui| {
-                    ui.add_sized(
-                        ui.available_size(),
-                        egui::Label::new("Sens Multiplier").selectable(false),
-                    );
-                    let response = ui.add_sized(
-                        ui.available_size(),
-                        egui::TextEdit::singleline(
-                            &mut self.settings.sens_multiplier_string,
-                        ),
-                    );
-                    if response.changed() {
-                        
-                    }
+                    add_sens_multiplier(self, ui);
                     ui.end_row();
 
-                    ui.add_sized(
-                        ui.available_size(),
-                        egui::Label::new("Curve Type").selectable(false),
-                    );
-                    egui::ComboBox::from_label("")
-                        .selected_text({
-                            match self.accel_args.mode {
-                                AccelMode::Noaccel => "Off".to_string(),
-                                _ => format!("{:?}", self.accel_args.mode)
-                            }
-                        })
-                        .show_ui(ui, |ui| {
-                            ui.selectable_value(&mut self.accel_args.mode, AccelMode::Noaccel, "Off");
-                            ui.selectable_value(&mut self.accel_args.mode, AccelMode::Linear, "Linear");
-                            ui.selectable_value(&mut self.accel_args.mode, AccelMode::Classic, "Classic");
-                            ui.selectable_value(&mut self.accel_args.mode, AccelMode::Jump, "Jump");
-                            ui.selectable_value(&mut self.accel_args.mode, AccelMode::Natural, "Natural");
-                            ui.selectable_value(&mut self.accel_args.mode, AccelMode::Synchronous, "Synchronous");
-                            ui.selectable_value(&mut self.accel_args.mode, AccelMode::Power, "Power");
-                        }
-                    );
+                    add_curve_type(self, ui);
+                    ui.end_row();
 
+                    match self.accel_args.mode {
+                        AccelMode::Linear => {
+                            add_gain(self, ui);
+                            ui.end_row();
+
+                            match self.accel_args.cap_mode {
+                                rawaccel_convert::types::CapMode::InputOutput => {
+                                    add_cap_type(self, ui);
+                                    ui.end_row();
+
+                                    add_cap_input(self, ui);
+                                    ui.end_row();
+
+                                    add_cap_output(self, ui);
+                                    ui.end_row();
+                                },
+                                rawaccel_convert::types::CapMode::Input => {
+                                    add_acceleration(self, ui);
+                                    ui.end_row();
+        
+                                    add_cap_type(self, ui);
+                                    ui.end_row();
+        
+                                    add_cap_input(self, ui);
+                                    ui.end_row();
+                                },
+                                rawaccel_convert::types::CapMode::Output => {
+                                    add_acceleration(self, ui);
+                                    ui.end_row();
+        
+                                    add_cap_type(self, ui);
+                                    ui.end_row();
+        
+                                    add_cap_output(self, ui);
+                                    ui.end_row();
+                                },
+                            }
+
+                            add_input_offset(self, ui);
+                            ui.end_row();
+                        },
+                        AccelMode::Classic => {},
+                        AccelMode::Jump => {},
+                        AccelMode::Natural => {},
+                        AccelMode::Synchronous => {},
+                        AccelMode::Power => {},
+                        AccelMode::Noaccel => {},
+                    }
                 });
             });
 
@@ -135,6 +160,153 @@ impl eframe::App for RawaccelConvertGui {
             
         });
     }
+}
+
+fn add_sens_multiplier(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::Ui) {
+    let mut color = ui.visuals().text_color();
+    match rawaccel_convert_gui.settings.sens_multiplier_string.parse::<f64>() {
+        Ok(ok) => rawaccel_convert_gui.accel_args.sens_multiplier = ok,
+        Err(_) => {color = ui.visuals().error_fg_color;},
+    }
+    ui.add_sized(
+        ui.available_size(),
+        egui::Label::new(egui::RichText::new("Sens Multiplier").color(color)).selectable(false),
+    );
+    ui.add_sized(
+        ui.available_size(),
+        egui::TextEdit::singleline(
+            &mut rawaccel_convert_gui.settings.sens_multiplier_string,
+        ),
+    );
+
+}
+
+fn add_curve_type(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::Ui) {
+    ui.add_sized(
+        ui.available_size(),
+        egui::Label::new("Curve Type").selectable(false),
+    );
+    ui.push_id("curve_type_dropdown", |ui| {
+        egui::ComboBox::from_label("")
+            .selected_text({
+                match rawaccel_convert_gui.accel_args.mode {
+                    AccelMode::Noaccel => "Off".to_string(),
+                    _ => format!("{:?}", rawaccel_convert_gui.accel_args.mode)
+                }
+            })
+            .show_ui(ui, |ui| {
+                ui.selectable_value(&mut rawaccel_convert_gui.accel_args.mode, AccelMode::Noaccel, "Off");
+                ui.selectable_value(&mut rawaccel_convert_gui.accel_args.mode, AccelMode::Linear, "Linear");
+                ui.selectable_value(&mut rawaccel_convert_gui.accel_args.mode, AccelMode::Classic, "Classic");
+                ui.selectable_value(&mut rawaccel_convert_gui.accel_args.mode, AccelMode::Jump, "Jump");
+                ui.selectable_value(&mut rawaccel_convert_gui.accel_args.mode, AccelMode::Natural, "Natural");
+                ui.selectable_value(&mut rawaccel_convert_gui.accel_args.mode, AccelMode::Synchronous, "Synchronous");
+                ui.selectable_value(&mut rawaccel_convert_gui.accel_args.mode, AccelMode::Power, "Power");
+            }
+        );
+    });
+}
+
+fn add_gain(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::Ui) {
+    ui.add_sized(
+        ui.available_size(),
+        egui::Label::new("Gain").selectable(false),
+    );
+    ui.checkbox(&mut rawaccel_convert_gui.accel_args.gain, "");
+}
+
+fn add_acceleration(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::Ui) {
+    let mut color = ui.visuals().text_color();
+    match rawaccel_convert_gui.settings.acceleration_string.parse::<f64>() {
+        Ok(ok) => rawaccel_convert_gui.accel_args.acceleration = ok,
+        Err(_) => {color = ui.visuals().error_fg_color;},
+    }
+    ui.add_sized(
+        ui.available_size(),
+        egui::Label::new(egui::RichText::new("Acceleration").color(color)).selectable(false),
+    );
+    ui.add_sized(
+        ui.available_size(),
+        egui::TextEdit::singleline(
+            &mut rawaccel_convert_gui.settings.acceleration_string,
+        ),
+    );
+}
+
+fn add_cap_type(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::Ui) {
+    ui.add_sized(
+        ui.available_size(),
+        egui::Label::new(egui::RichText::new("Cap Type")).selectable(false),
+    );
+    ui.push_id("cap_type_dropdown", |ui| {
+        egui::ComboBox::from_label("")
+            .selected_text({
+                match rawaccel_convert_gui.accel_args.cap_mode {
+                    CapMode::InputOutput => "Both".to_string(),
+                    _ => format!("{:?}", rawaccel_convert_gui.accel_args.cap_mode),
+                }
+            })
+            .show_ui(ui, |ui| {
+                ui.selectable_value(&mut rawaccel_convert_gui.accel_args.cap_mode, CapMode::Input, "Input");
+                ui.selectable_value(&mut rawaccel_convert_gui.accel_args.cap_mode, CapMode::Output, "Output");
+                ui.selectable_value(&mut rawaccel_convert_gui.accel_args.cap_mode, CapMode::InputOutput, "Both");
+            }
+        );
+    });
+}
+
+fn add_cap_input(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::Ui) {
+    let mut color = ui.visuals().text_color();
+    match rawaccel_convert_gui.settings.cap_input_string.parse::<f64>() {
+        Ok(ok) => rawaccel_convert_gui.accel_args.cap.x = ok,
+        Err(_) => {color = ui.visuals().error_fg_color;},
+    }
+    ui.add_sized(
+        ui.available_size(),
+        egui::Label::new(egui::RichText::new("Cap: Input").color(color)).selectable(false),
+    );
+    ui.add_sized(
+        ui.available_size(),
+        egui::TextEdit::singleline(
+            &mut rawaccel_convert_gui.settings.cap_input_string,
+        ),
+    );
+}
+
+fn add_cap_output(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::Ui) {
+    let mut color = ui.visuals().text_color();
+    match rawaccel_convert_gui.settings.cap_output_string.parse::<f64>() {
+        Ok(ok) => rawaccel_convert_gui.accel_args.cap.y = ok,
+        Err(_) => {color = ui.visuals().error_fg_color;},
+    }
+    ui.add_sized(
+        ui.available_size(),
+        egui::Label::new(egui::RichText::new("Cap: Output").color(color)).selectable(false),
+    );
+    ui.add_sized(
+        ui.available_size(),
+        egui::TextEdit::singleline(
+            &mut rawaccel_convert_gui.settings.cap_output_string,
+        ),
+    );
+}
+
+fn add_input_offset(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::Ui) {
+    let mut color = ui.visuals().text_color();
+    match rawaccel_convert_gui.settings.input_offset_string.parse::<f64>() {
+        Ok(ok) => rawaccel_convert_gui.accel_args.input_offset = ok,
+        Err(_) => {color = ui.visuals().error_fg_color;},
+    }
+    ui.add_sized(
+        ui.available_size(),
+        egui::Label::new(egui::RichText::new("Input Offset").color(color)).selectable(false),
+    );
+    ui.add_sized(
+        ui.available_size(),
+        egui::TextEdit::singleline(
+            &mut rawaccel_convert_gui.settings.input_offset_string,
+        ),
+    );
 }
 
 fn unselectable_warn_if_debug_build(ui: &mut egui::Ui) {
