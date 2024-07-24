@@ -365,7 +365,7 @@ impl eframe::App for RawaccelConvertGui {
                             get_point(x, &plot_accel_args)
                         },
                         0.0..plot_max_range,
-                        512,
+                        self.accel_args.point_count as usize,
                     ))
                     .color(egui::Color32::from_rgb(100, 100, 200))
                     .style(egui_plot::LineStyle::Solid),
