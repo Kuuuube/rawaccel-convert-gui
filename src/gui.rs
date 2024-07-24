@@ -4,6 +4,7 @@ use rawaccel_convert::types::{AccelArgs, AccelMode, CapMode};
 pub struct RawaccelConvertSettings {
     pub dark_mode: bool,
 
+    pub dpi_string: String,
     pub sens_multiplier_string: String,
     pub curve_type_string: String,
 
@@ -35,6 +36,7 @@ impl Default for RawaccelConvertSettings {
             dark_mode: true,
 
             //global
+            dpi_string: "1000".to_string(),
             sens_multiplier_string: "1.0".to_string(),
             curve_type_string: "Off".to_string(),
 
@@ -139,6 +141,9 @@ impl eframe::App for RawaccelConvertGui {
             .resizable(false)
             .show(ctx, |ui| {
                 egui::Grid::new("hentaigana_selection_grid").show(ui, |ui| {
+                    add_dpi(self, ui);
+                    ui.end_row();
+
                     add_sens_multiplier(self, ui);
                     ui.end_row();
 
@@ -394,6 +399,24 @@ impl eframe::App for RawaccelConvertGui {
             .response
         });
     }
+}
+
+fn add_dpi(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::Ui) {
+    let mut color = ui.visuals().text_color();
+    match rawaccel_convert_gui.settings.dpi_string.parse::<u32>() {
+        Ok(ok) => rawaccel_convert_gui.accel_args.dpi = ok,
+        Err(_) => {
+            color = ui.visuals().error_fg_color;
+        }
+    }
+    ui.add_sized(
+        ui.available_size(),
+        egui::Label::new(egui::RichText::new("DPI").color(color)).selectable(false),
+    );
+    ui.add_sized(
+        ui.available_size(),
+        egui::TextEdit::singleline(&mut rawaccel_convert_gui.settings.dpi_string),
+    );
 }
 
 fn add_sens_multiplier(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::Ui) {
