@@ -912,15 +912,22 @@ fn add_points_dump(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui:
                     color = ui.visuals().error_fg_color;
                 }
             }
-            ui.add_sized(
-                ui.available_size(),
-                egui::Label::new(egui::RichText::new("Max Number of Points").color(color))
-                    .selectable(false),
-            );
-            ui.add_sized(
-                ui.available_size(),
-                egui::TextEdit::singleline(&mut rawaccel_convert_gui.settings.point_count_string),
-            );
+            match rawaccel_convert_gui.accel_args.point_scaling {
+                PointScaling::Libinput | PointScaling::LibinputDebug => {}
+                _ => {
+                    ui.add_sized(
+                        ui.available_size(),
+                        egui::Label::new(egui::RichText::new("Max Number of Points").color(color))
+                            .selectable(false),
+                    );
+                    ui.add_sized(
+                        ui.available_size(),
+                        egui::TextEdit::singleline(
+                            &mut rawaccel_convert_gui.settings.point_count_string,
+                        ),
+                    );
+                }
+            };
         });
 
         egui::ScrollArea::vertical()
