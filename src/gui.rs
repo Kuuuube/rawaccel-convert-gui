@@ -40,7 +40,7 @@ impl Default for RawaccelConvertSettings {
             point_count_string: "64".to_string(),
 
             //global
-            dpi_string: "1000".to_string(),
+            dpi_string: "1200".to_string(),
             sens_multiplier_string: "1.0".to_string(),
             curve_type_string: "Off".to_string(),
 
