@@ -320,7 +320,34 @@ impl eframe::App for RawaccelConvertGui {
             });
 
         egui::CentralPanel::default().show(ctx, |ui| {
-            
+            let plot_accel_args = self.accel_args.clone();
+            let mut plot = egui_plot::Plot::new("lines_demo")
+                .legend(egui_plot::Legend::default())
+                .show_axes(true)
+                .show_grid(true);
+            plot = plot.coordinates_formatter(egui_plot::Corner::LeftBottom, egui_plot::CoordinatesFormatter::default());
+            plot.show(ui, |plot_ui| {
+                plot_ui.line(
+                    egui_plot::Line::new(egui_plot::PlotPoints::from_explicit_callback(
+                        move |x| {
+                            match plot_accel_args.mode {
+                                AccelMode::Linear => rawaccel_convert::accel_curves::classic::classic(x, &plot_accel_args),
+                                AccelMode::Classic => rawaccel_convert::accel_curves::classic::classic(x, &plot_accel_args),
+                                AccelMode::Jump => rawaccel_convert::accel_curves::jump::jump(x, &plot_accel_args),
+                                AccelMode::Natural => rawaccel_convert::accel_curves::natural::natural(x, &plot_accel_args),
+                                AccelMode::Synchronous => rawaccel_convert::accel_curves::synchronous::synchronous(x, &plot_accel_args),
+                                AccelMode::Power => rawaccel_convert::accel_curves::power::power(x, &plot_accel_args),
+                                AccelMode::Noaccel => rawaccel_convert::accel_curves::noaccel::noaccel(x, &plot_accel_args),
+                            }
+                        },
+                        ..,
+                        512,
+                    ))
+                    .color(egui::Color32::from_rgb(100, 100, 200))
+                    .style(egui_plot::LineStyle::Solid)
+                );
+            })
+        .response
         });
     }
 }
