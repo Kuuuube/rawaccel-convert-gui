@@ -913,7 +913,12 @@ fn add_points_dump(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui:
                 }
             }
             match rawaccel_convert_gui.accel_args.point_scaling {
-                PointScaling::Libinput | PointScaling::LibinputDebug => {}
+                PointScaling::Libinput | PointScaling::LibinputDebug => {
+                    ui.hyperlink_to(
+                        format!("Libinput accel guide"),
+                        "https://github.com/Kuuuube/rawaccel_convert/blob/master/docs/libinput.md",
+                    );
+                }
                 _ => {
                     ui.add_sized(
                         ui.available_size(),
