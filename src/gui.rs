@@ -10,6 +10,7 @@ pub struct RawaccelConvertSettings {
     pub cap_output_string: String,
     pub cap_input_string: String,
     pub input_offset_string: String,
+    pub exponent_classic_string: String,
 }
 
 impl Default for RawaccelConvertSettings {
@@ -18,11 +19,12 @@ impl Default for RawaccelConvertSettings {
             dark_mode: true,
 
             sens_multiplier_string: "1.0".to_string(),
-            curve_type_string: "Linear".to_string(),
+            curve_type_string: "Off".to_string(),
             acceleration_string: "0.005".to_string(),
             cap_output_string: "1.5".to_string(),
             cap_input_string: "15".to_string(),
             input_offset_string: "0".to_string(),
+            exponent_classic_string: "2".to_string(),
         }
     }
 }
@@ -146,7 +148,49 @@ impl eframe::App for RawaccelConvertGui {
                             add_input_offset(self, ui);
                             ui.end_row();
                         },
-                        AccelMode::Classic => {},
+                        AccelMode::Classic => {
+                            add_gain(self, ui);
+                            ui.end_row();
+
+                            match self.accel_args.cap_mode {
+                                rawaccel_convert::types::CapMode::InputOutput => {
+                                    add_cap_type(self, ui);
+                                    ui.end_row();
+
+                                    add_cap_input(self, ui);
+                                    ui.end_row();
+
+                                    add_cap_output(self, ui);
+                                    ui.end_row();
+                                },
+                                rawaccel_convert::types::CapMode::Input => {
+                                    add_acceleration(self, ui);
+                                    ui.end_row();
+        
+                                    add_cap_type(self, ui);
+                                    ui.end_row();
+        
+                                    add_cap_input(self, ui);
+                                    ui.end_row();
+                                },
+                                rawaccel_convert::types::CapMode::Output => {
+                                    add_acceleration(self, ui);
+                                    ui.end_row();
+        
+                                    add_cap_type(self, ui);
+                                    ui.end_row();
+        
+                                    add_cap_output(self, ui);
+                                    ui.end_row();
+                                },
+                            }
+
+                            add_input_offset(self, ui);
+                            ui.end_row();
+
+                            add_power_classic(self, ui);
+                            ui.end_row();
+                        },
                         AccelMode::Jump => {},
                         AccelMode::Natural => {},
                         AccelMode::Synchronous => {},
@@ -305,6 +349,24 @@ fn add_input_offset(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui
         ui.available_size(),
         egui::TextEdit::singleline(
             &mut rawaccel_convert_gui.settings.input_offset_string,
+        ),
+    );
+}
+
+fn add_power_classic(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::Ui) {
+    let mut color = ui.visuals().text_color();
+    match rawaccel_convert_gui.settings.exponent_classic_string.parse::<f64>() {
+        Ok(ok) => rawaccel_convert_gui.accel_args.exponent_classic = ok,
+        Err(_) => {color = ui.visuals().error_fg_color;},
+    }
+    ui.add_sized(
+        ui.available_size(),
+        egui::Label::new(egui::RichText::new("Power").color(color)).selectable(false),
+    );
+    ui.add_sized(
+        ui.available_size(),
+        egui::TextEdit::singleline(
+            &mut rawaccel_convert_gui.settings.exponent_classic_string,
         ),
     );
 }
