@@ -362,48 +362,17 @@ impl eframe::App for RawaccelConvertGui {
 
 fn get_point(x: f64, args: &AccelArgs) -> f64 {
     args.sens_multiplier
-    * match &args.mode {
-        AccelMode::Linear => {
-            rawaccel_convert::accel_curves::classic::classic(
-                x,
-                &args,
-            )
+        * match &args.mode {
+            AccelMode::Linear => rawaccel_convert::accel_curves::classic::classic(x, &args),
+            AccelMode::Classic => rawaccel_convert::accel_curves::classic::classic(x, &args),
+            AccelMode::Jump => rawaccel_convert::accel_curves::jump::jump(x, &args),
+            AccelMode::Natural => rawaccel_convert::accel_curves::natural::natural(x, &args),
+            AccelMode::Synchronous => {
+                rawaccel_convert::accel_curves::synchronous::synchronous(x, &args)
+            }
+            AccelMode::Power => rawaccel_convert::accel_curves::power::power(x, &args),
+            AccelMode::Noaccel => rawaccel_convert::accel_curves::noaccel::noaccel(x, &args),
         }
-        AccelMode::Classic => {
-            rawaccel_convert::accel_curves::classic::classic(
-                x,
-                &args,
-            )
-        }
-        AccelMode::Jump => rawaccel_convert::accel_curves::jump::jump(
-            x,
-            &args,
-        ),
-        AccelMode::Natural => {
-            rawaccel_convert::accel_curves::natural::natural(
-                x,
-                &args,
-            )
-        }
-        AccelMode::Synchronous => {
-            rawaccel_convert::accel_curves::synchronous::synchronous(
-                x,
-                &args,
-            )
-        }
-        AccelMode::Power => {
-            rawaccel_convert::accel_curves::power::power(
-                x,
-                &args,
-            )
-        }
-        AccelMode::Noaccel => {
-            rawaccel_convert::accel_curves::noaccel::noaccel(
-                x,
-                &args,
-            )
-        }
-    }
 }
 
 fn get_bounds(args: &AccelArgs) -> ([f64; 2], [f64; 2]) {
