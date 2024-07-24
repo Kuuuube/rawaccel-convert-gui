@@ -1,0 +1,15 @@
+[package]
+name = "rawaccel_convert_gui"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+rawaccel_convert = { git = "https://github.com/Kuuuube/rawaccel_convert.git", rev = "371afa8cbd5e01e3eaf5d63294ee513f8df6b89f" }
+egui = "0.28.1"
+eframe = { version = "0.28.1", features = [ "default_fonts", "glow", "persistence" ] }
+env_logger = "0.11.3"
+serde = "1.0.203"
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+wasm-bindgen-futures = "0.4.42"
+log = "0.4.22"
