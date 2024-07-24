@@ -929,7 +929,13 @@ fn add_points_dump(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui:
                             rawaccel_convert_gui.settings.point_count_string = "64".to_string();
                         }
                     }
-                    _ => rawaccel_convert_gui.accel_args.point_count = ok,
+                    _ => {
+                        if ok > 1 {
+                            rawaccel_convert_gui.accel_args.point_count = ok;
+                        } else {
+                            color = ui.visuals().error_fg_color;
+                        }
+                    },
                 },
                 Err(_) => {
                     color = ui.visuals().error_fg_color;
