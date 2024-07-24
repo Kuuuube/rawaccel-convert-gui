@@ -1,4 +1,4 @@
-use rawaccel_convert::types::{AccelArgs, AccelMode, CapMode, PointScaling};
+use rawaccel_convert::types::{AccelArgs, AccelMode, CapMode, CurvegenResult, PointScaling};
 
 #[derive(serde::Deserialize, serde::Serialize, Clone)]
 pub struct RawaccelConvertSettings {
@@ -87,6 +87,8 @@ pub struct RawaccelConvertGui {
     points: String,
     #[serde(skip)]
     libinput_steps: String,
+    #[serde(skip)]
+    curvegen: CurvegenResult,
 }
 
 impl Default for RawaccelConvertGui {
@@ -99,6 +101,7 @@ impl Default for RawaccelConvertGui {
 
             points: String::default(),
             libinput_steps: String::default(),
+            curvegen: CurvegenResult { points: vec![], step_size: 1.0 }
         }
     }
 }
@@ -992,19 +995,19 @@ fn add_points_dump(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui:
             || rawaccel_convert_gui.export_accel_args_cache != rawaccel_convert_gui.accel_args
         {
             rawaccel_convert_gui.export_accel_args_cache = rawaccel_convert_gui.accel_args.clone();
-            let curve =
+            rawaccel_convert_gui.curvegen =
                 rawaccel_convert::generate_curve::generate_curve(&rawaccel_convert_gui.accel_args);
-            rawaccel_convert_gui.libinput_steps = curve.step_size.to_string();
+            rawaccel_convert_gui.libinput_steps = rawaccel_convert_gui.curvegen.step_size.to_string();
             rawaccel_convert_gui.points = match rawaccel_convert_gui.accel_args.point_scaling {
                 rawaccel_convert::types::PointScaling::Libinput => {
                     let mut output_string = String::default();
-                    for point in curve.points {
+                    for point in &rawaccel_convert_gui.curvegen.points {
                         output_string += &(point.y.to_string() + " ");
                     }
                     output_string
                 }
                 _ => {
-                    format!("{:?}", curve.points)
+                    format!("{:?}", rawaccel_convert_gui.curvegen.points)
                 }
             }
         }
