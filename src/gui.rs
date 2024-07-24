@@ -6,11 +6,19 @@ pub struct RawaccelConvertSettings {
 
     pub sens_multiplier_string: String,
     pub curve_type_string: String,
+
     pub acceleration_string: String,
     pub cap_output_string: String,
     pub cap_input_string: String,
     pub input_offset_string: String,
     pub exponent_classic_string: String,
+
+    pub smooth_string: String,
+    pub input_string: String,
+    pub output_string: String,
+
+    pub decay_string: String,
+    pub limit_string: String,
 }
 
 impl Default for RawaccelConvertSettings {
@@ -18,13 +26,25 @@ impl Default for RawaccelConvertSettings {
         Self {
             dark_mode: true,
 
+            //global
             sens_multiplier_string: "1.0".to_string(),
             curve_type_string: "Off".to_string(),
+
+            //linear/classic
             acceleration_string: "0.005".to_string(),
             cap_output_string: "1.5".to_string(),
             cap_input_string: "15".to_string(),
             input_offset_string: "0".to_string(),
             exponent_classic_string: "2".to_string(),
+
+            //jump
+            smooth_string: "0.5".to_string(),
+            input_string: "15".to_string(),
+            output_string: "1.5".to_string(),
+
+            //natural
+            decay_string: "0.1".to_string(),
+            limit_string: "1.5".to_string(),
         }
     }
 }
@@ -195,11 +215,27 @@ impl eframe::App for RawaccelConvertGui {
                             add_gain(self, ui);
                             ui.end_row();
 
+                            add_smooth(self, ui);
+                            ui.end_row();
+
+                            add_input(self, ui);
+                            ui.end_row();
+
+                            add_output(self, ui);
+                            ui.end_row();
                         },
                         AccelMode::Natural => {
                             add_gain(self, ui);
                             ui.end_row();
 
+                            add_decay(self, ui);
+                            ui.end_row();
+
+                            add_input_offset(self, ui);
+                            ui.end_row();
+
+                            add_limit(self, ui);
+                            ui.end_row();
                         },
                         AccelMode::Synchronous => {
                             add_gain(self, ui);
@@ -383,6 +419,96 @@ fn add_power_classic(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egu
         ui.available_size(),
         egui::TextEdit::singleline(
             &mut rawaccel_convert_gui.settings.exponent_classic_string,
+        ),
+    );
+}
+
+fn add_smooth(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::Ui) {
+    let mut color = ui.visuals().text_color();
+    match rawaccel_convert_gui.settings.smooth_string.parse::<f64>() {
+        Ok(ok) => rawaccel_convert_gui.accel_args.smooth = ok,
+        Err(_) => {color = ui.visuals().error_fg_color;},
+    }
+    ui.add_sized(
+        ui.available_size(),
+        egui::Label::new(egui::RichText::new("Smooth").color(color)).selectable(false),
+    );
+    ui.add_sized(
+        ui.available_size(),
+        egui::TextEdit::singleline(
+            &mut rawaccel_convert_gui.settings.smooth_string,
+        ),
+    );
+}
+
+fn add_input(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::Ui) {
+    let mut color = ui.visuals().text_color();
+    match rawaccel_convert_gui.settings.input_string.parse::<f64>() {
+        Ok(ok) => rawaccel_convert_gui.accel_args.cap.x = ok,
+        Err(_) => {color = ui.visuals().error_fg_color;},
+    }
+    ui.add_sized(
+        ui.available_size(),
+        egui::Label::new(egui::RichText::new("Input").color(color)).selectable(false),
+    );
+    ui.add_sized(
+        ui.available_size(),
+        egui::TextEdit::singleline(
+            &mut rawaccel_convert_gui.settings.input_string,
+        ),
+    );
+}
+
+fn add_output(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::Ui) {
+    let mut color = ui.visuals().text_color();
+    match rawaccel_convert_gui.settings.output_string.parse::<f64>() {
+        Ok(ok) => rawaccel_convert_gui.accel_args.cap.y = ok,
+        Err(_) => {color = ui.visuals().error_fg_color;},
+    }
+    ui.add_sized(
+        ui.available_size(),
+        egui::Label::new(egui::RichText::new("Output").color(color)).selectable(false),
+    );
+    ui.add_sized(
+        ui.available_size(),
+        egui::TextEdit::singleline(
+            &mut rawaccel_convert_gui.settings.output_string,
+        ),
+    );
+}
+
+fn add_decay(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::Ui) {
+    let mut color = ui.visuals().text_color();
+    match rawaccel_convert_gui.settings.decay_string.parse::<f64>() {
+        Ok(ok) => rawaccel_convert_gui.accel_args.decay_rate = ok,
+        Err(_) => {color = ui.visuals().error_fg_color;},
+    }
+    ui.add_sized(
+        ui.available_size(),
+        egui::Label::new(egui::RichText::new("Decay Rate").color(color)).selectable(false),
+    );
+    ui.add_sized(
+        ui.available_size(),
+        egui::TextEdit::singleline(
+            &mut rawaccel_convert_gui.settings.decay_string,
+        ),
+    );
+}
+
+fn add_limit(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::Ui) {
+    let mut color = ui.visuals().text_color();
+    match rawaccel_convert_gui.settings.limit_string.parse::<f64>() {
+        Ok(ok) => rawaccel_convert_gui.accel_args.limit = ok,
+        Err(_) => {color = ui.visuals().error_fg_color;},
+    }
+    ui.add_sized(
+        ui.available_size(),
+        egui::Label::new(egui::RichText::new("Limit").color(color)).selectable(false),
+    );
+    ui.add_sized(
+        ui.available_size(),
+        egui::TextEdit::singleline(
+            &mut rawaccel_convert_gui.settings.limit_string,
         ),
     );
 }
