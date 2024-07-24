@@ -1,4 +1,3 @@
-use egui_plot::PlotItem;
 use rawaccel_convert::types::{AccelArgs, AccelMode, CapMode};
 
 #[derive(serde::Deserialize, serde::Serialize)]
@@ -161,32 +160,32 @@ impl eframe::App for RawaccelConvertGui {
 
                                     add_cap_output(self, ui);
                                     ui.end_row();
-                                },
+                                }
                                 rawaccel_convert::types::CapMode::Input => {
                                     add_acceleration(self, ui);
                                     ui.end_row();
-        
+
                                     add_cap_type(self, ui);
                                     ui.end_row();
-        
+
                                     add_cap_input(self, ui);
                                     ui.end_row();
-                                },
+                                }
                                 rawaccel_convert::types::CapMode::Output => {
                                     add_acceleration(self, ui);
                                     ui.end_row();
-        
+
                                     add_cap_type(self, ui);
                                     ui.end_row();
-        
+
                                     add_cap_output(self, ui);
                                     ui.end_row();
-                                },
+                                }
                             }
 
                             add_input_offset(self, ui);
                             ui.end_row();
-                        },
+
                         AccelMode::Classic => {
                             add_gain(self, ui);
                             ui.end_row();
@@ -201,27 +200,27 @@ impl eframe::App for RawaccelConvertGui {
 
                                     add_cap_output(self, ui);
                                     ui.end_row();
-                                },
+                                }
                                 rawaccel_convert::types::CapMode::Input => {
                                     add_acceleration(self, ui);
                                     ui.end_row();
-        
+
                                     add_cap_type(self, ui);
                                     ui.end_row();
-        
+
                                     add_cap_input(self, ui);
                                     ui.end_row();
-                                },
+                                }
                                 rawaccel_convert::types::CapMode::Output => {
                                     add_acceleration(self, ui);
                                     ui.end_row();
-        
+
                                     add_cap_type(self, ui);
                                     ui.end_row();
-        
+
                                     add_cap_output(self, ui);
                                     ui.end_row();
-                                },
+                                }
                             }
 
                             add_input_offset(self, ui);
@@ -229,7 +228,7 @@ impl eframe::App for RawaccelConvertGui {
 
                             add_power_classic(self, ui);
                             ui.end_row();
-                        },
+                        }
                         AccelMode::Jump => {
                             add_gain(self, ui);
                             ui.end_row();
@@ -242,7 +241,7 @@ impl eframe::App for RawaccelConvertGui {
 
                             add_output(self, ui);
                             ui.end_row();
-                        },
+                        }
                         AccelMode::Natural => {
                             add_gain(self, ui);
                             ui.end_row();
@@ -255,7 +254,7 @@ impl eframe::App for RawaccelConvertGui {
 
                             add_limit(self, ui);
                             ui.end_row();
-                        },
+                        }
                         AccelMode::Synchronous => {
                             add_gain(self, ui);
                             ui.end_row();
@@ -271,7 +270,7 @@ impl eframe::App for RawaccelConvertGui {
 
                             add_syncspeed(self, ui);
                             ui.end_row();
-                        },
+                        }
                         AccelMode::Power => {
                             add_gain(self, ui);
                             ui.end_row();
@@ -286,27 +285,27 @@ impl eframe::App for RawaccelConvertGui {
 
                                     add_cap_output(self, ui);
                                     ui.end_row();
-                                },
+                                }
                                 rawaccel_convert::types::CapMode::Input => {
                                     add_scale(self, ui);
                                     ui.end_row();
-        
+
                                     add_cap_type(self, ui);
                                     ui.end_row();
-        
+
                                     add_cap_input(self, ui);
                                     ui.end_row();
-                                },
+                                }
                                 rawaccel_convert::types::CapMode::Output => {
                                     add_scale(self, ui);
                                     ui.end_row();
-        
+
                                     add_cap_type(self, ui);
                                     ui.end_row();
-        
+
                                     add_cap_output(self, ui);
                                     ui.end_row();
-                                },
+                                }
                             }
 
                             add_exponent(self, ui);
@@ -314,8 +313,8 @@ impl eframe::App for RawaccelConvertGui {
 
                             add_output_offset(self, ui);
                             ui.end_row();
-                        },
-                        AccelMode::Noaccel => {},
+                        }
+                        AccelMode::Noaccel => {}
                     }
                 });
             });
@@ -328,7 +327,10 @@ impl eframe::App for RawaccelConvertGui {
                 .show_axes(true)
                 .show_grid(true)
                 .data_aspect(200.0);
-            plot = plot.coordinates_formatter(egui_plot::Corner::LeftBottom, egui_plot::CoordinatesFormatter::default());
+            plot = plot.coordinates_formatter(
+                egui_plot::Corner::LeftBottom,
+                egui_plot::CoordinatesFormatter::default(),
+            );
             plot.show(ui, |plot_ui| {
                 plot_ui.line(
                     egui_plot::Line::new(egui_plot::PlotPoints::from_explicit_callback(
@@ -350,19 +352,25 @@ impl eframe::App for RawaccelConvertGui {
                         512,
                     ))
                     .color(egui::Color32::from_rgb(100, 100, 200))
-                    .style(egui_plot::LineStyle::Solid)
+                    .style(egui_plot::LineStyle::Solid),
                 );
             })
-        .response
+            .response
         });
     }
 }
 
 fn add_sens_multiplier(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::Ui) {
     let mut color = ui.visuals().text_color();
-    match rawaccel_convert_gui.settings.sens_multiplier_string.parse::<f64>() {
+    match rawaccel_convert_gui
+        .settings
+        .sens_multiplier_string
+        .parse::<f64>()
+    {
         Ok(ok) => rawaccel_convert_gui.accel_args.sens_multiplier = ok,
-        Err(_) => {color = ui.visuals().error_fg_color;},
+        Err(_) => {
+            color = ui.visuals().error_fg_color;
+        }
     }
     ui.add_sized(
         ui.available_size(),
@@ -370,11 +378,8 @@ fn add_sens_multiplier(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut e
     );
     ui.add_sized(
         ui.available_size(),
-        egui::TextEdit::singleline(
-            &mut rawaccel_convert_gui.settings.sens_multiplier_string,
-        ),
+        egui::TextEdit::singleline(&mut rawaccel_convert_gui.settings.sens_multiplier_string),
     );
-
 }
 
 fn add_curve_type(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::Ui) {
@@ -387,19 +392,46 @@ fn add_curve_type(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::
             .selected_text({
                 match rawaccel_convert_gui.accel_args.mode {
                     AccelMode::Noaccel => "Off".to_string(),
-                    _ => format!("{:?}", rawaccel_convert_gui.accel_args.mode)
+                    _ => format!("{:?}", rawaccel_convert_gui.accel_args.mode),
                 }
             })
             .show_ui(ui, |ui| {
-                ui.selectable_value(&mut rawaccel_convert_gui.accel_args.mode, AccelMode::Noaccel, "Off");
-                ui.selectable_value(&mut rawaccel_convert_gui.accel_args.mode, AccelMode::Linear, "Linear");
-                ui.selectable_value(&mut rawaccel_convert_gui.accel_args.mode, AccelMode::Classic, "Classic");
-                ui.selectable_value(&mut rawaccel_convert_gui.accel_args.mode, AccelMode::Jump, "Jump");
-                ui.selectable_value(&mut rawaccel_convert_gui.accel_args.mode, AccelMode::Natural, "Natural");
-                ui.selectable_value(&mut rawaccel_convert_gui.accel_args.mode, AccelMode::Synchronous, "Synchronous");
-                ui.selectable_value(&mut rawaccel_convert_gui.accel_args.mode, AccelMode::Power, "Power");
-            }
-        );
+                ui.selectable_value(
+                    &mut rawaccel_convert_gui.accel_args.mode,
+                    AccelMode::Noaccel,
+                    "Off",
+                );
+                ui.selectable_value(
+                    &mut rawaccel_convert_gui.accel_args.mode,
+                    AccelMode::Linear,
+                    "Linear",
+                );
+                ui.selectable_value(
+                    &mut rawaccel_convert_gui.accel_args.mode,
+                    AccelMode::Classic,
+                    "Classic",
+                );
+                ui.selectable_value(
+                    &mut rawaccel_convert_gui.accel_args.mode,
+                    AccelMode::Jump,
+                    "Jump",
+                );
+                ui.selectable_value(
+                    &mut rawaccel_convert_gui.accel_args.mode,
+                    AccelMode::Natural,
+                    "Natural",
+                );
+                ui.selectable_value(
+                    &mut rawaccel_convert_gui.accel_args.mode,
+                    AccelMode::Synchronous,
+                    "Synchronous",
+                );
+                ui.selectable_value(
+                    &mut rawaccel_convert_gui.accel_args.mode,
+                    AccelMode::Power,
+                    "Power",
+                );
+            });
     });
 }
 
@@ -413,9 +445,15 @@ fn add_gain(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::Ui) {
 
 fn add_acceleration(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::Ui) {
     let mut color = ui.visuals().text_color();
-    match rawaccel_convert_gui.settings.acceleration_string.parse::<f64>() {
+    match rawaccel_convert_gui
+        .settings
+        .acceleration_string
+        .parse::<f64>()
+    {
         Ok(ok) => rawaccel_convert_gui.accel_args.acceleration = ok,
-        Err(_) => {color = ui.visuals().error_fg_color;},
+        Err(_) => {
+            color = ui.visuals().error_fg_color;
+        }
     }
     ui.add_sized(
         ui.available_size(),
@@ -423,9 +461,7 @@ fn add_acceleration(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui
     );
     ui.add_sized(
         ui.available_size(),
-        egui::TextEdit::singleline(
-            &mut rawaccel_convert_gui.settings.acceleration_string,
-        ),
+        egui::TextEdit::singleline(&mut rawaccel_convert_gui.settings.acceleration_string),
     );
 }
 
@@ -443,19 +479,36 @@ fn add_cap_type(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::Ui
                 }
             })
             .show_ui(ui, |ui| {
-                ui.selectable_value(&mut rawaccel_convert_gui.accel_args.cap_mode, CapMode::Input, "Input");
-                ui.selectable_value(&mut rawaccel_convert_gui.accel_args.cap_mode, CapMode::Output, "Output");
-                ui.selectable_value(&mut rawaccel_convert_gui.accel_args.cap_mode, CapMode::InputOutput, "Both");
-            }
-        );
+                ui.selectable_value(
+                    &mut rawaccel_convert_gui.accel_args.cap_mode,
+                    CapMode::Input,
+                    "Input",
+                );
+                ui.selectable_value(
+                    &mut rawaccel_convert_gui.accel_args.cap_mode,
+                    CapMode::Output,
+                    "Output",
+                );
+                ui.selectable_value(
+                    &mut rawaccel_convert_gui.accel_args.cap_mode,
+                    CapMode::InputOutput,
+                    "Both",
+                );
+            });
     });
 }
 
 fn add_cap_input(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::Ui) {
     let mut color = ui.visuals().text_color();
-    match rawaccel_convert_gui.settings.cap_input_string.parse::<f64>() {
+    match rawaccel_convert_gui
+        .settings
+        .cap_input_string
+        .parse::<f64>()
+    {
         Ok(ok) => rawaccel_convert_gui.accel_args.cap.x = ok,
-        Err(_) => {color = ui.visuals().error_fg_color;},
+        Err(_) => {
+            color = ui.visuals().error_fg_color;
+        }
     }
     ui.add_sized(
         ui.available_size(),
@@ -463,17 +516,21 @@ fn add_cap_input(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::U
     );
     ui.add_sized(
         ui.available_size(),
-        egui::TextEdit::singleline(
-            &mut rawaccel_convert_gui.settings.cap_input_string,
-        ),
+        egui::TextEdit::singleline(&mut rawaccel_convert_gui.settings.cap_input_string),
     );
 }
 
 fn add_cap_output(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::Ui) {
     let mut color = ui.visuals().text_color();
-    match rawaccel_convert_gui.settings.cap_output_string.parse::<f64>() {
+    match rawaccel_convert_gui
+        .settings
+        .cap_output_string
+        .parse::<f64>()
+    {
         Ok(ok) => rawaccel_convert_gui.accel_args.cap.y = ok,
-        Err(_) => {color = ui.visuals().error_fg_color;},
+        Err(_) => {
+            color = ui.visuals().error_fg_color;
+        }
     }
     ui.add_sized(
         ui.available_size(),
@@ -481,17 +538,21 @@ fn add_cap_output(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::
     );
     ui.add_sized(
         ui.available_size(),
-        egui::TextEdit::singleline(
-            &mut rawaccel_convert_gui.settings.cap_output_string,
-        ),
+        egui::TextEdit::singleline(&mut rawaccel_convert_gui.settings.cap_output_string),
     );
 }
 
 fn add_input_offset(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::Ui) {
     let mut color = ui.visuals().text_color();
-    match rawaccel_convert_gui.settings.input_offset_string.parse::<f64>() {
+    match rawaccel_convert_gui
+        .settings
+        .input_offset_string
+        .parse::<f64>()
+    {
         Ok(ok) => rawaccel_convert_gui.accel_args.input_offset = ok,
-        Err(_) => {color = ui.visuals().error_fg_color;},
+        Err(_) => {
+            color = ui.visuals().error_fg_color;
+        }
     }
     ui.add_sized(
         ui.available_size(),
@@ -499,17 +560,21 @@ fn add_input_offset(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui
     );
     ui.add_sized(
         ui.available_size(),
-        egui::TextEdit::singleline(
-            &mut rawaccel_convert_gui.settings.input_offset_string,
-        ),
+        egui::TextEdit::singleline(&mut rawaccel_convert_gui.settings.input_offset_string),
     );
 }
 
 fn add_power_classic(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::Ui) {
     let mut color = ui.visuals().text_color();
-    match rawaccel_convert_gui.settings.exponent_classic_string.parse::<f64>() {
+    match rawaccel_convert_gui
+        .settings
+        .exponent_classic_string
+        .parse::<f64>()
+    {
         Ok(ok) => rawaccel_convert_gui.accel_args.exponent_classic = ok,
-        Err(_) => {color = ui.visuals().error_fg_color;},
+        Err(_) => {
+            color = ui.visuals().error_fg_color;
+        }
     }
     ui.add_sized(
         ui.available_size(),
@@ -517,9 +582,7 @@ fn add_power_classic(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egu
     );
     ui.add_sized(
         ui.available_size(),
-        egui::TextEdit::singleline(
-            &mut rawaccel_convert_gui.settings.exponent_classic_string,
-        ),
+        egui::TextEdit::singleline(&mut rawaccel_convert_gui.settings.exponent_classic_string),
     );
 }
 
@@ -527,7 +590,9 @@ fn add_smooth(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::Ui) 
     let mut color = ui.visuals().text_color();
     match rawaccel_convert_gui.settings.smooth_string.parse::<f64>() {
         Ok(ok) => rawaccel_convert_gui.accel_args.smooth = ok,
-        Err(_) => {color = ui.visuals().error_fg_color;},
+        Err(_) => {
+            color = ui.visuals().error_fg_color;
+        }
     }
     ui.add_sized(
         ui.available_size(),
@@ -535,9 +600,7 @@ fn add_smooth(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::Ui) 
     );
     ui.add_sized(
         ui.available_size(),
-        egui::TextEdit::singleline(
-            &mut rawaccel_convert_gui.settings.smooth_string,
-        ),
+        egui::TextEdit::singleline(&mut rawaccel_convert_gui.settings.smooth_string),
     );
 }
 
@@ -545,7 +608,9 @@ fn add_input(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::Ui) {
     let mut color = ui.visuals().text_color();
     match rawaccel_convert_gui.settings.input_string.parse::<f64>() {
         Ok(ok) => rawaccel_convert_gui.accel_args.cap.x = ok,
-        Err(_) => {color = ui.visuals().error_fg_color;},
+        Err(_) => {
+            color = ui.visuals().error_fg_color;
+        }
     }
     ui.add_sized(
         ui.available_size(),
@@ -553,9 +618,7 @@ fn add_input(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::Ui) {
     );
     ui.add_sized(
         ui.available_size(),
-        egui::TextEdit::singleline(
-            &mut rawaccel_convert_gui.settings.input_string,
-        ),
+        egui::TextEdit::singleline(&mut rawaccel_convert_gui.settings.input_string),
     );
 }
 
@@ -563,7 +626,9 @@ fn add_output(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::Ui) 
     let mut color = ui.visuals().text_color();
     match rawaccel_convert_gui.settings.output_string.parse::<f64>() {
         Ok(ok) => rawaccel_convert_gui.accel_args.cap.y = ok,
-        Err(_) => {color = ui.visuals().error_fg_color;},
+        Err(_) => {
+            color = ui.visuals().error_fg_color;
+        }
     }
     ui.add_sized(
         ui.available_size(),
@@ -571,9 +636,7 @@ fn add_output(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::Ui) 
     );
     ui.add_sized(
         ui.available_size(),
-        egui::TextEdit::singleline(
-            &mut rawaccel_convert_gui.settings.output_string,
-        ),
+        egui::TextEdit::singleline(&mut rawaccel_convert_gui.settings.output_string),
     );
 }
 
@@ -581,7 +644,9 @@ fn add_decay(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::Ui) {
     let mut color = ui.visuals().text_color();
     match rawaccel_convert_gui.settings.decay_string.parse::<f64>() {
         Ok(ok) => rawaccel_convert_gui.accel_args.decay_rate = ok,
-        Err(_) => {color = ui.visuals().error_fg_color;},
+        Err(_) => {
+            color = ui.visuals().error_fg_color;
+        }
     }
     ui.add_sized(
         ui.available_size(),
@@ -589,9 +654,7 @@ fn add_decay(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::Ui) {
     );
     ui.add_sized(
         ui.available_size(),
-        egui::TextEdit::singleline(
-            &mut rawaccel_convert_gui.settings.decay_string,
-        ),
+        egui::TextEdit::singleline(&mut rawaccel_convert_gui.settings.decay_string),
     );
 }
 
@@ -599,7 +662,9 @@ fn add_limit(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::Ui) {
     let mut color = ui.visuals().text_color();
     match rawaccel_convert_gui.settings.limit_string.parse::<f64>() {
         Ok(ok) => rawaccel_convert_gui.accel_args.limit = ok,
-        Err(_) => {color = ui.visuals().error_fg_color;},
+        Err(_) => {
+            color = ui.visuals().error_fg_color;
+        }
     }
     ui.add_sized(
         ui.available_size(),
@@ -607,9 +672,7 @@ fn add_limit(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::Ui) {
     );
     ui.add_sized(
         ui.available_size(),
-        egui::TextEdit::singleline(
-            &mut rawaccel_convert_gui.settings.limit_string,
-        ),
+        egui::TextEdit::singleline(&mut rawaccel_convert_gui.settings.limit_string),
     );
 }
 
@@ -617,7 +680,9 @@ fn add_gamma(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::Ui) {
     let mut color = ui.visuals().text_color();
     match rawaccel_convert_gui.settings.gamma_string.parse::<f64>() {
         Ok(ok) => rawaccel_convert_gui.accel_args.gamma = ok,
-        Err(_) => {color = ui.visuals().error_fg_color;},
+        Err(_) => {
+            color = ui.visuals().error_fg_color;
+        }
     }
     ui.add_sized(
         ui.available_size(),
@@ -625,9 +690,7 @@ fn add_gamma(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::Ui) {
     );
     ui.add_sized(
         ui.available_size(),
-        egui::TextEdit::singleline(
-            &mut rawaccel_convert_gui.settings.gamma_string,
-        ),
+        egui::TextEdit::singleline(&mut rawaccel_convert_gui.settings.gamma_string),
     );
 }
 
@@ -635,7 +698,9 @@ fn add_motivity(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::Ui
     let mut color = ui.visuals().text_color();
     match rawaccel_convert_gui.settings.motivity_string.parse::<f64>() {
         Ok(ok) => rawaccel_convert_gui.accel_args.motivity = ok,
-        Err(_) => {color = ui.visuals().error_fg_color;},
+        Err(_) => {
+            color = ui.visuals().error_fg_color;
+        }
     }
     ui.add_sized(
         ui.available_size(),
@@ -643,17 +708,21 @@ fn add_motivity(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::Ui
     );
     ui.add_sized(
         ui.available_size(),
-        egui::TextEdit::singleline(
-            &mut rawaccel_convert_gui.settings.motivity_string,
-        ),
+        egui::TextEdit::singleline(&mut rawaccel_convert_gui.settings.motivity_string),
     );
 }
 
 fn add_syncspeed(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::Ui) {
     let mut color = ui.visuals().text_color();
-    match rawaccel_convert_gui.settings.syncspeed_string.parse::<f64>() {
+    match rawaccel_convert_gui
+        .settings
+        .syncspeed_string
+        .parse::<f64>()
+    {
         Ok(ok) => rawaccel_convert_gui.accel_args.sync_speed = ok,
-        Err(_) => {color = ui.visuals().error_fg_color;},
+        Err(_) => {
+            color = ui.visuals().error_fg_color;
+        }
     }
     ui.add_sized(
         ui.available_size(),
@@ -661,9 +730,7 @@ fn add_syncspeed(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::U
     );
     ui.add_sized(
         ui.available_size(),
-        egui::TextEdit::singleline(
-            &mut rawaccel_convert_gui.settings.syncspeed_string,
-        ),
+        egui::TextEdit::singleline(&mut rawaccel_convert_gui.settings.syncspeed_string),
     );
 }
 
@@ -671,7 +738,9 @@ fn add_scale(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::Ui) {
     let mut color = ui.visuals().text_color();
     match rawaccel_convert_gui.settings.scale_string.parse::<f64>() {
         Ok(ok) => rawaccel_convert_gui.accel_args.scale = ok,
-        Err(_) => {color = ui.visuals().error_fg_color;},
+        Err(_) => {
+            color = ui.visuals().error_fg_color;
+        }
     }
     ui.add_sized(
         ui.available_size(),
@@ -679,17 +748,21 @@ fn add_scale(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::Ui) {
     );
     ui.add_sized(
         ui.available_size(),
-        egui::TextEdit::singleline(
-            &mut rawaccel_convert_gui.settings.scale_string,
-        ),
+        egui::TextEdit::singleline(&mut rawaccel_convert_gui.settings.scale_string),
     );
 }
 
 fn add_exponent(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::Ui) {
     let mut color = ui.visuals().text_color();
-    match rawaccel_convert_gui.settings.exponent_power_string.parse::<f64>() {
+    match rawaccel_convert_gui
+        .settings
+        .exponent_power_string
+        .parse::<f64>()
+    {
         Ok(ok) => rawaccel_convert_gui.accel_args.exponent_power = ok,
-        Err(_) => {color = ui.visuals().error_fg_color;},
+        Err(_) => {
+            color = ui.visuals().error_fg_color;
+        }
     }
     ui.add_sized(
         ui.available_size(),
@@ -697,17 +770,21 @@ fn add_exponent(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::Ui
     );
     ui.add_sized(
         ui.available_size(),
-        egui::TextEdit::singleline(
-            &mut rawaccel_convert_gui.settings.exponent_power_string,
-        ),
+        egui::TextEdit::singleline(&mut rawaccel_convert_gui.settings.exponent_power_string),
     );
 }
 
 fn add_output_offset(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::Ui) {
     let mut color = ui.visuals().text_color();
-    match rawaccel_convert_gui.settings.output_offset_string.parse::<f64>() {
+    match rawaccel_convert_gui
+        .settings
+        .output_offset_string
+        .parse::<f64>()
+    {
         Ok(ok) => rawaccel_convert_gui.accel_args.output_offset = ok,
-        Err(_) => {color = ui.visuals().error_fg_color;},
+        Err(_) => {
+            color = ui.visuals().error_fg_color;
+        }
     }
     ui.add_sized(
         ui.available_size(),
@@ -715,9 +792,7 @@ fn add_output_offset(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egu
     );
     ui.add_sized(
         ui.available_size(),
-        egui::TextEdit::singleline(
-            &mut rawaccel_convert_gui.settings.output_offset_string,
-        ),
+        egui::TextEdit::singleline(&mut rawaccel_convert_gui.settings.output_offset_string),
     );
 }
 
