@@ -976,7 +976,7 @@ fn add_points_dump(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui:
                     [ui.available_width(), 1.0],
                     egui::TextEdit::singleline(&mut rawaccel_convert_gui.libinput_steps),
                 );
-            },
+            }
             _ => {}
         }
 
@@ -984,7 +984,9 @@ fn add_points_dump(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui:
             [ui.available_width(), 1.0],
             egui::Button::new("Generate Points"),
         );
-        if generate_points.clicked() || previous_point_scaling != rawaccel_convert_gui.accel_args.point_scaling {
+        if generate_points.clicked()
+            || previous_point_scaling != rawaccel_convert_gui.accel_args.point_scaling
+        {
             let curve =
                 rawaccel_convert::generate_curve::generate_curve(&rawaccel_convert_gui.accel_args);
             rawaccel_convert_gui.libinput_steps = curve.step_size.to_string();
