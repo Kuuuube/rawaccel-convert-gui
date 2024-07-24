@@ -340,15 +340,49 @@ impl eframe::App for RawaccelConvertGui {
                             if x < 0.0 {
                                 return 0.0;
                             }
-                            match &plot_accel_args.mode {
-                                AccelMode::Linear => rawaccel_convert::accel_curves::classic::classic(x, &plot_accel_args),
-                                AccelMode::Classic => rawaccel_convert::accel_curves::classic::classic(x, &plot_accel_args),
-                                AccelMode::Jump => rawaccel_convert::accel_curves::jump::jump(x, &plot_accel_args),
-                                AccelMode::Natural => rawaccel_convert::accel_curves::natural::natural(x, &plot_accel_args),
-                                AccelMode::Synchronous => rawaccel_convert::accel_curves::synchronous::synchronous(x, &plot_accel_args),
-                                AccelMode::Power => rawaccel_convert::accel_curves::power::power(x, &plot_accel_args),
-                                AccelMode::Noaccel => rawaccel_convert::accel_curves::noaccel::noaccel(x, &plot_accel_args),
-                            }
+                            plot_accel_args.sens_multiplier
+                                * match &plot_accel_args.mode {
+                                    AccelMode::Linear => {
+                                        rawaccel_convert::accel_curves::classic::classic(
+                                            x,
+                                            &plot_accel_args,
+                                        )
+                                    }
+                                    AccelMode::Classic => {
+                                        rawaccel_convert::accel_curves::classic::classic(
+                                            x,
+                                            &plot_accel_args,
+                                        )
+                                    }
+                                    AccelMode::Jump => rawaccel_convert::accel_curves::jump::jump(
+                                        x,
+                                        &plot_accel_args,
+                                    ),
+                                    AccelMode::Natural => {
+                                        rawaccel_convert::accel_curves::natural::natural(
+                                            x,
+                                            &plot_accel_args,
+                                        )
+                                    }
+                                    AccelMode::Synchronous => {
+                                        rawaccel_convert::accel_curves::synchronous::synchronous(
+                                            x,
+                                            &plot_accel_args,
+                                        )
+                                    }
+                                    AccelMode::Power => {
+                                        rawaccel_convert::accel_curves::power::power(
+                                            x,
+                                            &plot_accel_args,
+                                        )
+                                    }
+                                    AccelMode::Noaccel => {
+                                        rawaccel_convert::accel_curves::noaccel::noaccel(
+                                            x,
+                                            &plot_accel_args,
+                                        )
+                                    }
+                                }
                         },
                         0.0..plot_max_range,
                         512,
