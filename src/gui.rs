@@ -140,7 +140,7 @@ impl eframe::App for RawaccelConvertGui {
             .max_width(250.0)
             .resizable(false)
             .show(ctx, |ui| {
-                egui::Grid::new("hentaigana_selection_grid").show(ui, |ui| {
+                egui::Grid::new("rawaccel_convert_gui_grid").show(ui, |ui| {
                     add_dpi(self, ui);
                     ui.end_row();
 
