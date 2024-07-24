@@ -83,6 +83,8 @@ pub struct RawaccelConvertGui {
 
     #[serde(skip)]
     points: String,
+    #[serde(skip)]
+    libinput_steps: String,
 }
 
 impl Default for RawaccelConvertGui {
@@ -93,6 +95,7 @@ impl Default for RawaccelConvertGui {
             accel_args: AccelArgs::default(),
 
             points: String::default(),
+            libinput_steps: String::default(),
         }
     }
 }
@@ -935,6 +938,11 @@ fn add_points_dump(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui:
             };
         });
 
+        ui.add_sized(
+            [ui.available_width(), 1.0],
+            egui::Label::new("Points").selectable(false),
+        );
+
         egui::ScrollArea::vertical()
             .max_height(100.0)
             .show(ui, |ui| {
@@ -944,6 +952,20 @@ fn add_points_dump(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui:
                 )
             });
 
+        match rawaccel_convert_gui.accel_args.point_scaling {
+            PointScaling::Libinput | PointScaling::LibinputDebug => {
+                ui.add_sized(
+                    [ui.available_width(), 1.0],
+                    egui::Label::new("Steps").selectable(false),
+                );
+                ui.add_sized(
+                    [ui.available_width(), 1.0],
+                    egui::TextEdit::singleline(&mut rawaccel_convert_gui.libinput_steps),
+                );
+            },
+            _ => {}
+        }
+
         let generate_points = ui.add_sized(
             [ui.available_width(), 1.0],
             egui::Button::new("Generate Points"),
@@ -951,16 +973,17 @@ fn add_points_dump(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui:
         if generate_points.clicked() {
             let curve =
                 rawaccel_convert::generate_curve::generate_curve(&rawaccel_convert_gui.accel_args);
+            rawaccel_convert_gui.libinput_steps = curve.step_size.to_string();
             rawaccel_convert_gui.points = match rawaccel_convert_gui.accel_args.point_scaling {
                 rawaccel_convert::types::PointScaling::Libinput => {
                     let mut output_string = String::default();
-                    for point in curve {
+                    for point in curve.points {
                         output_string += &(point.y.to_string() + " ");
                     }
                     output_string
                 }
                 _ => {
-                    format!("{:?}", curve)
+                    format!("{:?}", curve.points)
                 }
             }
         }

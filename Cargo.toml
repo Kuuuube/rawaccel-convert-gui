@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-rawaccel_convert = { git = "https://github.com/Kuuuube/rawaccel_convert.git", rev = "371afa8cbd5e01e3eaf5d63294ee513f8df6b89f" }
+rawaccel_convert = { git = "https://github.com/Kuuuube/rawaccel_convert.git", rev = "7278c0c5dfabb7589323ada92f562615f3e60a70" }
 egui = "0.28.1"
 eframe = { version = "0.28.1", features = [ "default_fonts", "glow", "persistence" ] }
 env_logger = "0.11.3"
