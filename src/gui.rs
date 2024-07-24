@@ -1,8 +1,10 @@
-use rawaccel_convert::types::{AccelArgs, AccelMode, CapMode};
+use rawaccel_convert::types::{AccelArgs, AccelMode, CapMode, PointScaling};
 
 #[derive(serde::Deserialize, serde::Serialize)]
 pub struct RawaccelConvertSettings {
     pub dark_mode: bool,
+
+    pub point_count_string: String,
 
     pub dpi_string: String,
     pub sens_multiplier_string: String,
@@ -34,6 +36,8 @@ impl Default for RawaccelConvertSettings {
     fn default() -> Self {
         Self {
             dark_mode: true,
+
+            point_count_string: "64".to_string(),
 
             //global
             dpi_string: "1000".to_string(),
@@ -76,6 +80,9 @@ pub struct RawaccelConvertGui {
 
     #[serde(skip)]
     accel_args: AccelArgs,
+
+    #[serde(skip)]
+    points: String,
 }
 
 impl Default for RawaccelConvertGui {
@@ -84,6 +91,8 @@ impl Default for RawaccelConvertGui {
             settings: RawaccelConvertSettings::default(),
 
             accel_args: AccelArgs::default(),
+
+            points: String::default(),
         }
     }
 }
@@ -323,6 +332,7 @@ impl eframe::App for RawaccelConvertGui {
                         AccelMode::Noaccel => {}
                     }
                 });
+                add_points_dump(self, ui);
             });
 
         egui::CentralPanel::default().show(ctx, |ui| {
@@ -842,6 +852,107 @@ fn add_output_offset(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egu
         ui.available_size(),
         egui::TextEdit::singleline(&mut rawaccel_convert_gui.settings.output_offset_string),
     );
+}
+
+fn add_points_dump(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::Ui) {
+    ui.with_layout(egui::Layout::top_down(egui::Align::Center), |ui| {
+        ui.add_sized(
+            [ui.available_width(), 1.0],
+            egui::Label::new("Export Points").selectable(false),
+        );
+
+        ui.push_id("point_scaling_dropdown", |ui| {
+            egui::ComboBox::from_label("")
+                .width(ui.available_width())
+                .selected_text(format!(
+                    "{:?}",
+                    rawaccel_convert_gui.accel_args.point_scaling
+                ))
+                .show_ui(ui, |ui| {
+                    ui.selectable_value(
+                        &mut rawaccel_convert_gui.accel_args.point_scaling,
+                        PointScaling::Sens,
+                        "Sens",
+                    );
+                    ui.selectable_value(
+                        &mut rawaccel_convert_gui.accel_args.point_scaling,
+                        PointScaling::Velocity,
+                        "Velocity",
+                    );
+                    ui.selectable_value(
+                        &mut rawaccel_convert_gui.accel_args.point_scaling,
+                        PointScaling::Libinput,
+                        "Libinput",
+                    );
+                    ui.selectable_value(
+                        &mut rawaccel_convert_gui.accel_args.point_scaling,
+                        PointScaling::LibinputDebug,
+                        "LibinputDebug",
+                    );
+                })
+        });
+
+        egui::Grid::new("point_count_grid").show(ui, |ui| {
+            let mut color = ui.visuals().text_color();
+            match rawaccel_convert_gui
+                .settings
+                .point_count_string
+                .parse::<u32>()
+            {
+                Ok(ok) => match rawaccel_convert_gui.accel_args.point_scaling {
+                    PointScaling::Libinput | PointScaling::LibinputDebug => {
+                        if ok != 64 {
+                            color = ui.visuals().error_fg_color;
+                            rawaccel_convert_gui.settings.point_count_string = "64".to_string();
+                        }
+                    }
+                    _ => rawaccel_convert_gui.accel_args.point_count = ok,
+                },
+                Err(_) => {
+                    color = ui.visuals().error_fg_color;
+                }
+            }
+            ui.add_sized(
+                ui.available_size(),
+                egui::Label::new(egui::RichText::new("Max Number of Points").color(color))
+                    .selectable(false),
+            );
+            ui.add_sized(
+                ui.available_size(),
+                egui::TextEdit::singleline(&mut rawaccel_convert_gui.settings.point_count_string),
+            );
+        });
+
+        egui::ScrollArea::vertical()
+            .max_height(100.0)
+            .show(ui, |ui| {
+                ui.add_sized(
+                    [ui.available_width(), 1.0],
+                    egui::TextEdit::multiline(&mut rawaccel_convert_gui.points),
+                )
+            });
+
+        let generate_points = ui.add_sized(
+            [ui.available_width(), 1.0],
+            egui::Button::new("Generate Points"),
+        );
+        if generate_points.clicked() {
+            let curve =
+                rawaccel_convert::generate_curve::generate_curve(&rawaccel_convert_gui.accel_args);
+            rawaccel_convert_gui.points = match rawaccel_convert_gui.accel_args.point_scaling {
+                rawaccel_convert::types::PointScaling::Libinput => {
+                    let mut output_string = String::default();
+                    for point in curve {
+                        output_string += &(point.y.to_string() + " ");
+                    }
+                    output_string
+                }
+                _ => {
+                    format!("{:?}", curve)
+                }
+            }
+        }
+    });
 }
 
 fn unselectable_warn_if_debug_build(ui: &mut egui::Ui) {
