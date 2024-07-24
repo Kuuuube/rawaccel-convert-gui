@@ -346,7 +346,7 @@ impl eframe::App for RawaccelConvertGui {
 
         egui::CentralPanel::default().show(ctx, |ui| {
             let plot_accel_args = self.accel_args.clone();
-            let plot_max_range = (plot_accel_args.dpi.clone() / 20) as f64;
+            let plot_points = self.curvegen.points.clone();
             let mut plot = egui_plot::Plot::new("lines_demo")
                 .legend(egui_plot::Legend::default())
                 .show_axes(true)
@@ -363,16 +363,7 @@ impl eframe::App for RawaccelConvertGui {
                 let bounds = get_bounds(&plot_accel_args);
                 plot_ui.set_plot_bounds(egui_plot::PlotBounds::from_min_max(bounds.0, bounds.1));
                 plot_ui.line(
-                    egui_plot::Line::new(egui_plot::PlotPoints::from_explicit_callback(
-                        move |x| {
-                            if x < 0.0 {
-                                return 0.0;
-                            }
-                            get_point(x, &plot_accel_args)
-                        },
-                        0.0..plot_max_range,
-                        self.accel_args.point_count as usize,
-                    ))
+                    egui_plot::Line::new(egui_plot::PlotPoints::new(convert_points(plot_points)))
                     .color(egui::Color32::from_rgb(100, 100, 200))
                     .style(egui_plot::LineStyle::Solid),
                 );
@@ -380,6 +371,14 @@ impl eframe::App for RawaccelConvertGui {
             .response
         });
     }
+}
+
+fn convert_points(points: Vec<rawaccel_convert::types::Point>) -> Vec<[f64; 2]> {
+    let mut egui_points = vec![];
+    for point in points {
+        egui_points.push([point.x, point.y]);
+    }
+    return egui_points;
 }
 
 fn get_point(x: f64, args: &AccelArgs) -> f64 {
