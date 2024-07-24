@@ -1,0 +1,4 @@
+# https://github.com/emilk/eframe_template/blob/main/.cargo/config.toml
+# https://github.com/emilk/eframe_template/blob/ed0d4d1d2e2dcb545af66f3433c157e5f9ca14c1/.cargo/config.toml
+[target.wasm32-unknown-unknown]
+rustflags = ["--cfg=web_sys_unstable_apis"]
