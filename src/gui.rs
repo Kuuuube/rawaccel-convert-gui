@@ -120,12 +120,11 @@ impl eframe::App for RawaccelConvertGui {
                     ui.menu_button("Settings", |ui| {
                         light_dark_buttons(self, ui);
 
-                        ui.menu_button("Reset", |ui| {
-                            if ui.button("Confirm").clicked() {
-                                self.settings = RawaccelConvertSettings::default();
-                                ui.close_menu();
-                            }
-                        });
+                        if ui.button("Reset").clicked() {
+                            self.settings = RawaccelConvertSettings::default();
+                            self.accel_args = AccelArgs::default();
+                            ui.close_menu();
+                        }
                     });
                 });
 
