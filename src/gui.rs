@@ -333,10 +333,14 @@ impl eframe::App for RawaccelConvertGui {
                 .legend(egui_plot::Legend::default())
                 .show_axes(true)
                 .show_grid(true);
-            plot = plot.coordinates_formatter(
-                egui_plot::Corner::LeftBottom,
-                egui_plot::CoordinatesFormatter::default(),
-            );
+            plot = plot
+                .coordinates_formatter(
+                    egui_plot::Corner::LeftBottom,
+                    egui_plot::CoordinatesFormatter::default(),
+                )
+                .allow_zoom(false)
+                .allow_drag(false)
+                .allow_scroll(false);
             plot.show(ui, |plot_ui| {
                 let bounds = get_bounds(&plot_accel_args);
                 plot_ui.set_plot_bounds(egui_plot::PlotBounds::from_min_max(bounds.0, bounds.1));
