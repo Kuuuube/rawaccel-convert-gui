@@ -34,7 +34,7 @@ fn main() {
             .start(
                 "the_canvas_id",
                 web_options,
-                Box::new(|cc| Box::new(gui::RawaccelConvertGui::new(cc))),
+                Box::new(|cc| Ok(Box::new(gui::RawaccelConvertGui::new(cc)))),
             )
             .await;
         let loading_text = eframe::web_sys::window()
