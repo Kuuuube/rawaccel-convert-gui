@@ -301,6 +301,19 @@ impl eframe::App for RawaccelConvertGui {
                             add_syncspeed(self, ui);
                             ui.end_row();
                         }
+                        AccelMode::Motivity => {
+                            add_gain(self, ui);
+                            ui.end_row();
+
+                            add_growthrate(self, ui);
+                            ui.end_row();
+
+                            add_motivity(self, ui);
+                            ui.end_row();
+
+                            add_midpoint(self, ui);
+                            ui.end_row();
+                        }
                         AccelMode::Power => {
                             add_gain(self, ui);
                             ui.end_row();
@@ -398,6 +411,7 @@ fn get_point(x: f64, args: &AccelArgs) -> f64 {
                 rawaccel_convert::accel_curves::synchronous::synchronous(x, &args)
             }
             AccelMode::Power => rawaccel_convert::accel_curves::power::power(x, &args),
+            AccelMode::Motivity => rawaccel_convert::accel_curves::motivity::motivity(x, args),
             AccelMode::Noaccel => rawaccel_convert::accel_curves::noaccel::noaccel(x, &args),
         };
     match args.point_scaling {
@@ -514,6 +528,11 @@ fn add_curve_type(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::
                     &mut rawaccel_convert_gui.accel_args.mode,
                     AccelMode::Power,
                     "Power",
+                );
+                ui.selectable_value(
+                    &mut rawaccel_convert_gui.accel_args.mode,
+                    AccelMode::Motivity,
+                    "Motivity",
                 );
             });
     });
@@ -778,6 +797,24 @@ fn add_gamma(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::Ui) {
     );
 }
 
+fn add_growthrate(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::Ui) {
+    let mut color = ui.visuals().text_color();
+    match rawaccel_convert_gui.settings.gamma_string.parse::<f64>() {
+        Ok(ok) => rawaccel_convert_gui.accel_args.gamma = ok,
+        Err(_) => {
+            color = ui.visuals().error_fg_color;
+        }
+    }
+    ui.add_sized(
+        ui.available_size(),
+        egui::Label::new(egui::RichText::new("Growth Rate").color(color)).selectable(false),
+    );
+    ui.add_sized(
+        ui.available_size(),
+        egui::TextEdit::singleline(&mut rawaccel_convert_gui.settings.gamma_string),
+    );
+}
+
 fn add_motivity(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::Ui) {
     let mut color = ui.visuals().text_color();
     match rawaccel_convert_gui.settings.motivity_string.parse::<f64>() {
@@ -811,6 +848,28 @@ fn add_syncspeed(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::U
     ui.add_sized(
         ui.available_size(),
         egui::Label::new(egui::RichText::new("SyncSpeed").color(color)).selectable(false),
+    );
+    ui.add_sized(
+        ui.available_size(),
+        egui::TextEdit::singleline(&mut rawaccel_convert_gui.settings.syncspeed_string),
+    );
+}
+
+fn add_midpoint(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::Ui) {
+    let mut color = ui.visuals().text_color();
+    match rawaccel_convert_gui
+        .settings
+        .syncspeed_string
+        .parse::<f64>()
+    {
+        Ok(ok) => rawaccel_convert_gui.accel_args.sync_speed = ok,
+        Err(_) => {
+            color = ui.visuals().error_fg_color;
+        }
+    }
+    ui.add_sized(
+        ui.available_size(),
+        egui::Label::new(egui::RichText::new("Midpoint").color(color)).selectable(false),
     );
     ui.add_sized(
         ui.available_size(),
