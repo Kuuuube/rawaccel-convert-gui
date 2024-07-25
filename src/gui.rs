@@ -981,7 +981,7 @@ fn add_lookup_table_box(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut 
     }
     ui.add_sized(
         ui.available_size(),
-        egui::Label::new(egui::RichText::new("Points").color(color)).selectable(false),
+        egui::Label::new(egui::RichText::new("LUT Points").color(color)).selectable(false),
     );
     ui.add_sized(
         ui.available_size(),
