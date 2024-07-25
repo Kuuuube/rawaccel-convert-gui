@@ -398,7 +398,10 @@ impl eframe::App for RawaccelConvertGui {
                 .allow_drag(false)
                 .allow_scroll(false);
             plot.show(ui, |plot_ui| {
-                plot_ui.set_plot_bounds(egui_plot::PlotBounds::from_min_max(plot_bounds.0, plot_bounds.1));
+                plot_ui.set_plot_bounds(egui_plot::PlotBounds::from_min_max(
+                    plot_bounds.0,
+                    plot_bounds.1,
+                ));
                 plot_ui.line(
                     egui_plot::Line::new(egui_plot::PlotPoints::new(convert_points(plot_points)))
                         .color(egui::Color32::from_rgb(100, 100, 200))
@@ -426,16 +429,24 @@ fn get_point(x: f64, args: &AccelArgs) -> f64 {
             AccelMode::Jump => rawaccel_convert::accel_curves::jump::jump(x, &args),
             AccelMode::Natural => rawaccel_convert::accel_curves::natural::natural(x, &args),
             AccelMode::Synchronous => {
-                rawaccel_convert::accel_curves::synchronous::synchronous(x, &args).unwrap_or_default()
+                rawaccel_convert::accel_curves::synchronous::synchronous(x, &args)
+                    .unwrap_or_default()
             }
             AccelMode::Power => rawaccel_convert::accel_curves::power::power(x, &args),
-            AccelMode::Motivity => rawaccel_convert::accel_curves::motivity::motivity(x, args).unwrap_or_default(),
-            AccelMode::Lookup => rawaccel_convert::accel_curves::lookup::lookup(x, args).unwrap_or_default(),
+            AccelMode::Motivity => {
+                rawaccel_convert::accel_curves::motivity::motivity(x, args).unwrap_or_default()
+            }
+            AccelMode::Lookup => {
+                rawaccel_convert::accel_curves::lookup::lookup(x, args).unwrap_or_default()
+            }
             AccelMode::Noaccel => rawaccel_convert::accel_curves::noaccel::noaccel(x, &args),
         };
     match args.point_scaling {
         PointScaling::Sens => return y,
-        PointScaling::Velocity | PointScaling::Libinput | PointScaling::LibinputDebug | PointScaling::Lookup => {
+        PointScaling::Velocity
+        | PointScaling::Libinput
+        | PointScaling::LibinputDebug
+        | PointScaling::Lookup => {
             let converted_point = rawaccel_convert::convert_curve::sensitivity_point_to_velocity(
                 rawaccel_convert::types::Point { x, y },
             );
@@ -447,7 +458,10 @@ fn get_point(x: f64, args: &AccelArgs) -> f64 {
     }
 }
 
-fn get_bounds(rawaccel_convert_gui: &mut RawaccelConvertGui, args: &AccelArgs) -> ([f64; 2], [f64; 2]) {
+fn get_bounds(
+    rawaccel_convert_gui: &mut RawaccelConvertGui,
+    args: &AccelArgs,
+) -> ([f64; 2], [f64; 2]) {
     match args.mode {
         AccelMode::Lookup => {
             let plot_min_x = 0.1;
@@ -470,7 +484,7 @@ fn get_bounds(rawaccel_convert_gui: &mut RawaccelConvertGui, args: &AccelArgs) -
                 [plot_min_x, plot_min_y * 0.9],
                 [plot_max_x, plot_max_y * 1.1],
             );
-        },
+        }
         _ => {
             let plot_min_x = match args.mode {
                 AccelMode::Power | AccelMode::Lookup => 0.1,
@@ -1006,7 +1020,8 @@ fn add_lookup_table_box(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut 
     );
     ui.add_sized(
         ui.available_size(),
-        egui::TextEdit::singleline(&mut rawaccel_convert_gui.settings.lookup_table_string).char_limit(usize::MAX),
+        egui::TextEdit::singleline(&mut rawaccel_convert_gui.settings.lookup_table_string)
+            .char_limit(usize::MAX),
     );
 }
 
@@ -1192,7 +1207,10 @@ fn add_points_dump(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui:
 
             rawaccel_convert_gui.accel_args.optimize_curve =
                 match rawaccel_convert_gui.export_point_scaling {
-                    PointScaling::Sens | PointScaling::Velocity | PointScaling::Gain | PointScaling::Lookup => true,
+                    PointScaling::Sens
+                    | PointScaling::Velocity
+                    | PointScaling::Gain
+                    | PointScaling::Lookup => true,
                     PointScaling::Libinput | PointScaling::LibinputDebug => false,
                 };
 
