@@ -1036,16 +1036,6 @@ fn add_points_dump(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui:
                         PointScaling::Velocity,
                         "Velocity",
                     );
-                    ui.selectable_value(
-                        &mut rawaccel_convert_gui.accel_args.point_scaling,
-                        PointScaling::Libinput,
-                        "Libinput",
-                    );
-                    ui.selectable_value(
-                        &mut rawaccel_convert_gui.accel_args.point_scaling,
-                        PointScaling::LibinputDebug,
-                        "LibinputDebug",
-                    );
                 })
         });
 
