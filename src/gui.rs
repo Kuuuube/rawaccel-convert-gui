@@ -435,7 +435,7 @@ fn get_point(x: f64, args: &AccelArgs) -> f64 {
         };
     match args.point_scaling {
         PointScaling::Sens => return y,
-        PointScaling::Velocity | PointScaling::Libinput | PointScaling::LibinputDebug => {
+        PointScaling::Velocity | PointScaling::Libinput | PointScaling::LibinputDebug | PointScaling::Lookup => {
             let converted_point = rawaccel_convert::convert_curve::sensitivity_point_to_velocity(
                 rawaccel_convert::types::Point { x, y },
             );
@@ -1090,6 +1090,11 @@ fn add_points_dump(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui:
                         PointScaling::LibinputDebug,
                         "LibinputDebug",
                     );
+                    ui.selectable_value(
+                        &mut rawaccel_convert_gui.export_point_scaling,
+                        PointScaling::Lookup,
+                        "Lookup",
+                    );
                 })
         });
 
@@ -1105,6 +1110,12 @@ fn add_points_dump(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui:
                         if ok != 64 {
                             color = ui.visuals().error_fg_color;
                             rawaccel_convert_gui.settings.point_count_string = "64".to_string();
+                        }
+                    }
+                    PointScaling::Lookup => {
+                        if ok != 256 {
+                            color = ui.visuals().error_fg_color;
+                            rawaccel_convert_gui.settings.point_count_string = "256".to_string();
                         }
                     }
                     _ => {
@@ -1181,7 +1192,7 @@ fn add_points_dump(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui:
 
             rawaccel_convert_gui.accel_args.optimize_curve =
                 match rawaccel_convert_gui.export_point_scaling {
-                    PointScaling::Sens | PointScaling::Velocity | PointScaling::Gain => true,
+                    PointScaling::Sens | PointScaling::Velocity | PointScaling::Gain | PointScaling::Lookup => true,
                     PointScaling::Libinput | PointScaling::LibinputDebug => false,
                 };
 
@@ -1202,6 +1213,13 @@ fn add_points_dump(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui:
                     let mut output_string = String::default();
                     for point in &rawaccel_convert_gui.curvegen_export.points {
                         output_string += &(point.y.to_string() + " ");
+                    }
+                    output_string
+                }
+                rawaccel_convert::types::PointScaling::Lookup => {
+                    let mut output_string = String::default();
+                    for point in &rawaccel_convert_gui.curvegen_export.points {
+                        output_string += &format!("{},{};", point.x, point.y);
                     }
                     output_string
                 }
