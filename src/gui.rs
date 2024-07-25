@@ -535,6 +535,7 @@ fn add_curve_type(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::
             .selected_text({
                 match rawaccel_convert_gui.accel_args.mode {
                     AccelMode::Noaccel => "Off".to_string(),
+                    AccelMode::Lookup => "Look Up Table".to_string(),
                     _ => format!("{:?}", rawaccel_convert_gui.accel_args.mode),
                 }
             })
@@ -582,7 +583,7 @@ fn add_curve_type(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::
                 ui.selectable_value(
                     &mut rawaccel_convert_gui.accel_args.mode,
                     AccelMode::Lookup,
-                    "Lookup",
+                    "Look Up Table",
                 );
             });
     });
