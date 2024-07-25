@@ -384,6 +384,7 @@ impl eframe::App for RawaccelConvertGui {
         egui::CentralPanel::default().show(ctx, |ui| {
             let plot_accel_args = self.accel_args.clone();
             let plot_points = self.curvegen.points.clone();
+            let plot_bounds = get_bounds(self, &plot_accel_args);
             let mut plot = egui_plot::Plot::new("lines_demo")
                 .legend(egui_plot::Legend::default())
                 .show_axes(true)
@@ -397,14 +398,7 @@ impl eframe::App for RawaccelConvertGui {
                 .allow_drag(false)
                 .allow_scroll(false);
             plot.show(ui, |plot_ui| {
-                let bounds = get_bounds(&plot_accel_args);
-                plot_ui.set_plot_bounds(egui_plot::PlotBounds::from_min_max(bounds.0, bounds.1));
-                match plot_accel_args.mode {
-                    AccelMode::Lookup => {
-                        plot_ui.set_auto_bounds(egui::Vec2b { x: false, y: true });
-                    }
-                    _ => {}
-                }
+                plot_ui.set_plot_bounds(egui_plot::PlotBounds::from_min_max(plot_bounds.0, plot_bounds.1));
                 plot_ui.line(
                     egui_plot::Line::new(egui_plot::PlotPoints::new(convert_points(plot_points)))
                         .color(egui::Color32::from_rgb(100, 100, 200))
@@ -453,16 +447,42 @@ fn get_point(x: f64, args: &AccelArgs) -> f64 {
     }
 }
 
-fn get_bounds(args: &AccelArgs) -> ([f64; 2], [f64; 2]) {
-    let plot_min_x = match args.mode {
-        AccelMode::Power | AccelMode::Lookup => 0.1,
-        _ => 0.0,
-    };
-    let plot_max_x = (args.dpi.clone() / 20) as f64;
-    return (
-        [plot_min_x, get_point(plot_min_x, args) * 0.9],
-        [plot_max_x, get_point(plot_max_x, args) * 1.1],
-    );
+fn get_bounds(rawaccel_convert_gui: &mut RawaccelConvertGui, args: &AccelArgs) -> ([f64; 2], [f64; 2]) {
+    match args.mode {
+        AccelMode::Lookup => {
+            let plot_min_x = 0.1;
+            let plot_max_x = (args.dpi.clone() / 20) as f64;
+            let mut plot_min_y = f64::MAX;
+            let mut plot_max_y = 0.0;
+
+            for point in &rawaccel_convert_gui.curvegen.points {
+                if point.x < plot_min_x || point.x > plot_max_x {
+                    continue;
+                }
+                if point.y < plot_min_y {
+                    plot_min_y = point.y;
+                }
+                if point.y > plot_max_y {
+                    plot_max_y = point.y;
+                }
+            }
+            return (
+                [plot_min_x, plot_min_y * 0.9],
+                [plot_max_x, plot_max_y * 1.1],
+            );
+        },
+        _ => {
+            let plot_min_x = match args.mode {
+                AccelMode::Power | AccelMode::Lookup => 0.1,
+                _ => 0.0,
+            };
+            let plot_max_x = (args.dpi.clone() / 20) as f64;
+            return (
+                [plot_min_x, get_point(plot_min_x, args) * 0.9],
+                [plot_max_x, get_point(plot_max_x, args) * 1.1],
+            );
+        }
+    }
 }
 
 fn add_dpi(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::Ui) {
