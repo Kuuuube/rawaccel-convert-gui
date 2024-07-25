@@ -2394,7 +2394,7 @@ checksum = "20675572f6f24e9e76ef639bc5552774ed45f1c30e2951e1e99c59888861c539"
 [[package]]
 name = "rawaccel_convert"
 version = "0.1.0"
-source = "git+https://github.com/Kuuuube/rawaccel_convert.git?rev=2e02357f0c57d5604bc65ee8096160d792bad21b#2e02357f0c57d5604bc65ee8096160d792bad21b"
+source = "git+https://github.com/Kuuuube/rawaccel_convert.git?rev=1880d52bb188350ed70a6f964505745d0112c8fd#1880d52bb188350ed70a6f964505745d0112c8fd"
 
 [[package]]
 name = "rawaccel_convert_gui"
