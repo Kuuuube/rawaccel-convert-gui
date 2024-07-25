@@ -432,11 +432,11 @@ fn get_point(x: f64, args: &AccelArgs) -> f64 {
             AccelMode::Jump => rawaccel_convert::accel_curves::jump::jump(x, &args),
             AccelMode::Natural => rawaccel_convert::accel_curves::natural::natural(x, &args),
             AccelMode::Synchronous => {
-                rawaccel_convert::accel_curves::synchronous::synchronous(x, &args)
+                rawaccel_convert::accel_curves::synchronous::synchronous(x, &args).unwrap_or_default()
             }
             AccelMode::Power => rawaccel_convert::accel_curves::power::power(x, &args),
-            AccelMode::Motivity => rawaccel_convert::accel_curves::motivity::motivity(x, args),
-            AccelMode::Lookup => rawaccel_convert::accel_curves::motivity::motivity(x, args),
+            AccelMode::Motivity => rawaccel_convert::accel_curves::motivity::motivity(x, args).unwrap_or_default(),
+            AccelMode::Lookup => rawaccel_convert::accel_curves::lookup::lookup(x, args).unwrap_or_default(),
             AccelMode::Noaccel => rawaccel_convert::accel_curves::noaccel::noaccel(x, &args),
         };
     match args.point_scaling {
