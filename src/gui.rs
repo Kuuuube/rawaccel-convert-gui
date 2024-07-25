@@ -105,8 +105,14 @@ impl Default for RawaccelConvertGui {
 
             points: String::default(),
             libinput_steps: String::default(),
-            curvegen: CurvegenResult { points: vec![], step_size: 1.0 },
-            curvegen_export: CurvegenResult { points: vec![], step_size: 1.0 },
+            curvegen: CurvegenResult {
+                points: vec![],
+                step_size: 1.0,
+            },
+            curvegen_export: CurvegenResult {
+                points: vec![],
+                step_size: 1.0,
+            },
             export_point_scaling: PointScaling::Sens,
         }
     }
@@ -383,8 +389,8 @@ impl eframe::App for RawaccelConvertGui {
                 plot_ui.set_plot_bounds(egui_plot::PlotBounds::from_min_max(bounds.0, bounds.1));
                 plot_ui.line(
                     egui_plot::Line::new(egui_plot::PlotPoints::new(convert_points(plot_points)))
-                    .color(egui::Color32::from_rgb(100, 100, 200))
-                    .style(egui_plot::LineStyle::Solid),
+                        .color(egui::Color32::from_rgb(100, 100, 200))
+                        .style(egui_plot::LineStyle::Solid),
                 );
             })
             .response
@@ -987,10 +993,7 @@ fn add_points_dump(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui:
         ui.push_id("export_point_scaling_dropdown", |ui| {
             egui::ComboBox::from_label("")
                 .width(ui.available_width())
-                .selected_text(format!(
-                    "{:?}",
-                    rawaccel_convert_gui.export_point_scaling
-                ))
+                .selected_text(format!("{:?}", rawaccel_convert_gui.export_point_scaling))
                 .show_ui(ui, |ui| {
                     ui.selectable_value(
                         &mut rawaccel_convert_gui.export_point_scaling,
@@ -1035,7 +1038,7 @@ fn add_points_dump(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui:
                         } else {
                             color = ui.visuals().error_fg_color;
                         }
-                    },
+                    }
                 },
                 Err(_) => {
                     color = ui.visuals().error_fg_color;
@@ -1101,10 +1104,11 @@ fn add_points_dump(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui:
         {
             rawaccel_convert_gui.export_accel_args_cache = rawaccel_convert_gui.accel_args.clone();
 
-            rawaccel_convert_gui.accel_args.optimize_curve = match rawaccel_convert_gui.export_point_scaling {
-                PointScaling::Sens | PointScaling::Velocity | PointScaling::Gain => true,
-                PointScaling::Libinput | PointScaling::LibinputDebug => false,
-            };
+            rawaccel_convert_gui.accel_args.optimize_curve =
+                match rawaccel_convert_gui.export_point_scaling {
+                    PointScaling::Sens | PointScaling::Velocity | PointScaling::Gain => true,
+                    PointScaling::Libinput | PointScaling::LibinputDebug => false,
+                };
 
             //graph curve
             rawaccel_convert_gui.curvegen =
