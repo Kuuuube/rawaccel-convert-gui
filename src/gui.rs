@@ -985,7 +985,7 @@ fn add_lookup_table_box(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut 
     );
     ui.add_sized(
         ui.available_size(),
-        egui::TextEdit::singleline(&mut rawaccel_convert_gui.settings.lookup_table_string),
+        egui::TextEdit::singleline(&mut rawaccel_convert_gui.settings.lookup_table_string).char_limit(usize::MAX),
     );
 }
 
