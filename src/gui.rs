@@ -30,6 +30,8 @@ pub struct RawaccelConvertSettings {
     pub scale_string: String,
     pub exponent_power_string: String,
     pub output_offset_string: String,
+
+    pub lookup_table_string: String,
 }
 
 impl Default for RawaccelConvertSettings {
@@ -69,6 +71,9 @@ impl Default for RawaccelConvertSettings {
             scale_string: "1".to_string(),
             exponent_power_string: "0.05".to_string(),
             output_offset_string: "0".to_string(),
+
+            //lookup
+            lookup_table_string: "".to_string(),
         }
     }
 }
@@ -363,6 +368,13 @@ impl eframe::App for RawaccelConvertGui {
                             add_output_offset(self, ui);
                             ui.end_row();
                         }
+                        AccelMode::Lookup => {
+                            add_lookup_table_box(self, ui);
+                            ui.end_row();
+
+                            add_apply_as(self, ui);
+                            ui.end_row();
+                        }
                         AccelMode::Noaccel => {}
                     }
                 });
@@ -387,6 +399,12 @@ impl eframe::App for RawaccelConvertGui {
             plot.show(ui, |plot_ui| {
                 let bounds = get_bounds(&plot_accel_args);
                 plot_ui.set_plot_bounds(egui_plot::PlotBounds::from_min_max(bounds.0, bounds.1));
+                match plot_accel_args.mode {
+                    AccelMode::Lookup => {
+                        plot_ui.set_auto_bounds(egui::Vec2b { x: false, y: true });
+                    }
+                    _ => {}
+                }
                 plot_ui.line(
                     egui_plot::Line::new(egui_plot::PlotPoints::new(convert_points(plot_points)))
                         .color(egui::Color32::from_rgb(100, 100, 200))
@@ -418,6 +436,7 @@ fn get_point(x: f64, args: &AccelArgs) -> f64 {
             }
             AccelMode::Power => rawaccel_convert::accel_curves::power::power(x, &args),
             AccelMode::Motivity => rawaccel_convert::accel_curves::motivity::motivity(x, args),
+            AccelMode::Lookup => rawaccel_convert::accel_curves::motivity::motivity(x, args),
             AccelMode::Noaccel => rawaccel_convert::accel_curves::noaccel::noaccel(x, &args),
         };
     match args.point_scaling {
@@ -436,7 +455,7 @@ fn get_point(x: f64, args: &AccelArgs) -> f64 {
 
 fn get_bounds(args: &AccelArgs) -> ([f64; 2], [f64; 2]) {
     let plot_min_x = match args.mode {
-        AccelMode::Power => 0.1,
+        AccelMode::Power | AccelMode::Lookup => 0.1,
         _ => 0.0,
     };
     let plot_max_x = (args.dpi.clone() / 20) as f64;
@@ -539,6 +558,11 @@ fn add_curve_type(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::
                     &mut rawaccel_convert_gui.accel_args.mode,
                     AccelMode::Motivity,
                     "Motivity",
+                );
+                ui.selectable_value(
+                    &mut rawaccel_convert_gui.accel_args.mode,
+                    AccelMode::Lookup,
+                    "Lookup",
                 );
             });
     });
@@ -943,6 +967,46 @@ fn add_output_offset(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egu
         ui.available_size(),
         egui::TextEdit::singleline(&mut rawaccel_convert_gui.settings.output_offset_string),
     );
+}
+
+fn add_lookup_table_box(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::Ui) {
+    let mut color = ui.visuals().text_color();
+    match rawaccel_convert::args_parser::parse_lookup_table(
+        &rawaccel_convert_gui.settings.lookup_table_string,
+    ) {
+        Some(some) => rawaccel_convert_gui.accel_args.lookup_data = some,
+        None => {
+            color = ui.visuals().error_fg_color;
+        }
+    }
+    ui.add_sized(
+        ui.available_size(),
+        egui::Label::new(egui::RichText::new("Points").color(color)).selectable(false),
+    );
+    ui.add_sized(
+        ui.available_size(),
+        egui::TextEdit::singleline(&mut rawaccel_convert_gui.settings.lookup_table_string),
+    );
+}
+
+fn add_apply_as(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::Ui) {
+    ui.add_sized(
+        ui.available_size(),
+        egui::Label::new(egui::RichText::new("Apply As")).selectable(false),
+    );
+    ui.push_id("apply_as_dropdown", |ui| {
+        egui::ComboBox::from_label("")
+            .selected_text({
+                match rawaccel_convert_gui.accel_args.gain {
+                    true => "Velocity".to_string(),
+                    false => "Sens".to_string(),
+                }
+            })
+            .show_ui(ui, |ui| {
+                ui.selectable_value(&mut rawaccel_convert_gui.accel_args.gain, false, "Sens");
+                ui.selectable_value(&mut rawaccel_convert_gui.accel_args.gain, true, "Velocity");
+            });
+    });
 }
 
 fn add_points_dump(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui::Ui) {
