@@ -979,8 +979,6 @@ fn add_points_dump(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui:
                 })
         });
 
-        let previous_export_point_scaling = rawaccel_convert_gui.export_point_scaling.clone();
-
         ui.add_sized(
             [ui.available_width(), 1.0],
             egui::Label::new("Export Points").selectable(false),
@@ -1098,9 +1096,7 @@ fn add_points_dump(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui:
             [ui.available_width(), 1.0],
             egui::Button::new("Generate Points"),
         );
-        if generate_points.clicked()
-            || previous_point_scaling != rawaccel_convert_gui.accel_args.point_scaling
-            || previous_export_point_scaling != rawaccel_convert_gui.export_point_scaling
+        if previous_point_scaling != rawaccel_convert_gui.accel_args.point_scaling
             || rawaccel_convert_gui.export_accel_args_cache != rawaccel_convert_gui.accel_args
         {
             rawaccel_convert_gui.export_accel_args_cache = rawaccel_convert_gui.accel_args.clone();
@@ -1113,13 +1109,15 @@ fn add_points_dump(rawaccel_convert_gui: &mut RawaccelConvertGui, ui: &mut egui:
             //graph curve
             rawaccel_convert_gui.curvegen =
                 rawaccel_convert::generate_curve::generate_curve(&rawaccel_convert_gui.accel_args);
+        }
 
-            //export curve
+        if generate_points.clicked() {
             let mut export_accel_args = rawaccel_convert_gui.accel_args.clone();
             export_accel_args.point_scaling = rawaccel_convert_gui.export_point_scaling.clone();
             rawaccel_convert_gui.curvegen_export =
                 rawaccel_convert::generate_curve::generate_curve(&export_accel_args);
-            rawaccel_convert_gui.libinput_steps = rawaccel_convert_gui.curvegen_export.step_size.to_string();
+            rawaccel_convert_gui.libinput_steps =
+                rawaccel_convert_gui.curvegen_export.step_size.to_string();
             rawaccel_convert_gui.points = match export_accel_args.point_scaling {
                 rawaccel_convert::types::PointScaling::Libinput => {
                     let mut output_string = String::default();
